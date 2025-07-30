@@ -1,0 +1,1548 @@
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Management - Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+from { opacity: 0; transform: translateX(-30px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+from { opacity: 0; transform: scale(0.8); }
+to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-fade-in-left { animation: fadeInLeft 0.8s ease-out forwards; }
+.animate-slide-down { animation: slideDown 0.6s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
+.glass-effect {
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+}
+.opacity-0 { opacity: 0; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+/* Status styles */
+.status-active { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-inactive { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+.status-pending { background: rgba(245, 158, 11, 0.1); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.2); }
+.status-verified { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-success { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-error { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+.status-warning { background: rgba(245, 158, 11, 0.1); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.2); }
+/* Priority styles */
+.priority-high { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+.priority-medium { background: rgba(245, 158, 11, 0.1); color: #92400e; }
+.priority-low { background: rgba(34, 197, 94, 0.1); color: #166534; }
+.priority-critical { background: rgba(220, 38, 38, 0.15); color: #991b1b; border: 1px solid rgba(220, 38, 38, 0.3); }
+/* Tab styles */
+.tab-btn {
+transition: all 0.3s ease;
+border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+color: #3b82f6;
+border-bottom-color: #3b82f6;
+background: rgba(59, 130, 246, 0.05);
+}
+/* Modal styles */
+.modal-backdrop {
+background: rgba(0, 0, 0, 0.7);
+backdrop-filter: blur(5px);
+}
+.modal-content {
+background: white;
+box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+/* Data row styles */
+.data-row {
+transition: all 0.3s ease;
+border-left: 4px solid transparent;
+}
+.data-row:hover {
+background: rgba(59, 130, 246, 0.05);
+border-left-color: #3b82f6;
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+/* Audit log specific styles */
+.audit-row.error {
+background: rgba(239, 68, 68, 0.03);
+border-left-color: #ef4444;
+}
+.audit-row.override {
+background: rgba(245, 158, 11, 0.03);
+border-left-color: #f59e0b;
+}
+.audit-row.critical {
+background: rgba(220, 38, 38, 0.05);
+border-left-color: #dc2626;
+border-left-width: 6px;
+}
+/* Action buttons */
+.primary-btn {
+background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+color: white;
+transition: all 0.3s ease;
+}
+.primary-btn:hover {
+background: linear-gradient(135deg, #1d4ed8, #1e40af);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+.success-btn {
+background: linear-gradient(135deg, #059669, #047857);
+color: white;
+transition: all 0.3s ease;
+}
+.success-btn:hover {
+background: linear-gradient(135deg, #047857, #065f46);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
+.danger-btn {
+background: linear-gradient(135deg, #dc2626, #b91c1c);
+color: white;
+transition: all 0.3s ease;
+}
+.danger-btn:hover {
+background: linear-gradient(135deg, #b91c1c, #991b1b);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+}
+/* File upload styles */
+.file-upload-area {
+border: 2px dashed #d1d5db;
+transition: all 0.3s ease;
+}
+.file-upload-area:hover {
+border-color: #3b82f6;
+background: rgba(59, 130, 246, 0.05);
+}
+.file-upload-area.dragover {
+border-color: #3b82f6;
+background: rgba(59, 130, 246, 0.1);
+}
+/* Split input styles */
+.split-input {
+background: rgba(59, 130, 246, 0.05);
+border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.split-input:focus {
+background: white;
+border-color: #3b82f6;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+/* Action type icons */
+.action-icon {
+width: 32px;
+height: 32px;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.action-upload { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.action-edit { background: linear-gradient(135deg, #059669, #047857); }
+.action-generate { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+.action-approval { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.action-payrun { background: linear-gradient(135deg, #10b981, #059669); }
+.action-download { background: linear-gradient(135deg, #6b7280, #374151); }
+.action-delete { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.action-login { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+</style></head>
+<body class="font-inter h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+
+<!-- Sidebar -->
+<aside class="animate-fade-in-left fixed z-30 inset-y-0 left-0 w-16 md:w-20 glass-effect flex flex-col transition-all duration-500 border-r pt-6 pb-6 shadow-2xl items-center">
+    <div class="flex flex-col space-y-8">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-sm tracking-tight bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg">
+            FIN
+        </div>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="home" class="lucide lucide-home w-5 h-5" style="stroke-width: 1.5;"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calculator" class="lucide lucide-calculator w-5 h-5" style="stroke-width: 1.5;"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01" class=""></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-plus" class="lucide lucide-file-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" class="lucide lucide-send w-5 h-5" style="stroke-width: 1.5;"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" class="lucide lucide-calendar-check w-5 h-5" style="stroke-width: 1.5;"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-5 h-5" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-indigo-600 bg-white/80 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="database" class="lucide lucide-database w-5 h-5" style="stroke-width: 1.5;"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5V19A9 3 0 0 0 21 19V5"></path><path d="M3 12A9 3 0 0 0 21 12"></path></svg>
+        </button>
+    </div>
+    <div class="mt-auto">
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" class="lucide lucide-settings w-5 h-5" style="stroke-width: 1.5;"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-20 min-h-screen ml-16">
+    <div class="max-w-[1600px] sm:px-6 lg:px-8 mr-auto ml-auto pt-6 pr-4 pb-6 pl-4">
+        
+        <!-- Header -->
+        <header class="animate-slide-down delay-100 flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+            <div class="">
+                <div class="flex items-center space-x-3 mb-2">
+                    <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                        Data Management
+                    </h1>
+                    
+                </div>
+                <p class="text-gray-500 font-medium">
+                    Manage partner data, introducers, and custom splits
+                </p>
+            </div>
+            <div class="flex items-center space-x-4 mt-6 lg:mt-0">
+                <button onclick="exportAllData()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                    <span>Export All</span>
+                </button>
+                <button onclick="showDataBackup()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" class="lucide lucide-shield-check w-4 h-4" style="stroke-width: 1.5;"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                    <span>Backup</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="animate-fade-in-up delay-200 mb-8">
+            <div class="glass-effect rounded-2xl p-2 shadow-lg border border-white/20">
+                <div class="flex space-x-2">
+                    <button onclick="switchTab('partners')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 active" data-tab="partners">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-4 h-4" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            <span class="">Partner Management</span>
+                            <span id="partnersCount" class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">42</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('introducers')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="introducers">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-plus" class="lucide lucide-user-plus w-4 h-4" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+                            <span class="">Introducers</span>
+                            <span id="introducersCount" class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">18</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('splits')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="splits">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pie-chart" class="lucide lucide-pie-chart w-4 h-4" style="stroke-width: 1.5;"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>
+                            <span>Custom Splits</span>
+                            <span id="splitsCount" class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">24</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('upload')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="upload">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload-cloud" class="lucide lucide-upload-cloud w-4 h-4" style="stroke-width: 1.5;"><path d="M12 13v8"></path><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4-4 4 4"></path></svg>
+                            <span>Data Upload</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('audit')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="audit">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" class="lucide lucide-clipboard-list w-4 h-4" style="stroke-width: 1.5;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
+                            <span>Audit Log</span>
+                            <span id="auditCount" class="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs">156</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partner Management Tab -->
+        <div id="partnersTab" class="tab-content delay-300">
+            <!-- Summary Cards -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalPartners">42</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Total Partners</div>
+                        <div class="text-xs text-gray-500">Active in system</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="activePartners">38</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Active Partners</div>
+                        <div class="text-xs text-gray-500">Currently working</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" class="lucide lucide-clock w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="pendingPartners">4</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Pending Setup</div>
+                        <div class="text-xs text-gray-500">Awaiting verification</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="dollar-sign" class="lucide lucide-dollar-sign w-6 h-6 text-white" style="stroke-width: 1.5;"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="avgPartnerRate">65%</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Avg. Split Rate</div>
+                        <div class="text-xs text-gray-500">Partner percentage</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Actions -->
+            <div class="mb-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search absolute left-3 top-3 w-4 h-4 text-gray-400" style="stroke-width: 1.5;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                                <input type="text" id="partnerSearchInput" placeholder="Search partners..." class="pl-10 pr-4 py-2.5 w-80 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" onkeyup="searchPartners()">
+                            </div>
+                            <select id="partnerStatusFilter" onchange="filterPartners()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                            <select id="partnerTypeFilter" onchange="filterPartners()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Types</option>
+                                <option value="senior">Senior Partner</option>
+                                <option value="associate">Associate</option>
+                                <option value="consultant">Consultant</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <button onclick="showAddPartnerModal()" class="primary-btn px-6 py-3 rounded-2xl flex items-center space-x-2 shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-plus" class="lucide lucide-user-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+                                <span>Add Partner</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partners Table -->
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Partner Database</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500"><span id="filteredPartnersCount">42</span> partners</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="partnersTable">
+                        <thead class="bg-gray-50/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Partner Details</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact Info</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Default Split</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Updated</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="partnersTableBody"><tr class="data-row">
+            <td class="px-4 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                        JS
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900">John Smith</div>
+                        <div class="text-sm text-gray-500">ID: 1</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-sm text-gray-900">john.smith@finance.com</div>
+                <div class="text-sm text-gray-500">+44 7700 900123</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">senior</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-lg font-semibold text-gray-900">65%</div>
+                <div class="text-sm text-gray-500">Default rate</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-active px-3 py-1 rounded-full text-xs font-medium capitalize">active</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-sm text-gray-900">2024-01-15</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="edit-3" class="lucide lucide-edit-3 w-4 h-4" style="stroke-width: 1.5;"><path d="M13 21h8"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+                    </button>
+                    <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+            </td>
+        </tr><tr class="data-row">
+            <td class="px-4 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                        SJ
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900">Sarah Johnson</div>
+                        <div class="text-sm text-gray-500">ID: 2</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-sm text-gray-900">sarah.johnson@finance.com</div>
+                <div class="text-sm text-gray-500">+44 7700 900124</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">associate</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-lg font-semibold text-gray-900">45%</div>
+                <div class="text-sm text-gray-500">Default rate</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-active px-3 py-1 rounded-full text-xs font-medium capitalize">active</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-sm text-gray-900">2024-01-14</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="edit-3" class="lucide lucide-edit-3 w-4 h-4" style="stroke-width: 1.5;"><path d="M13 21h8"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+                    </button>
+                    <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+            </td>
+        </tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Introducers Tab -->
+        <div id="introducersTab" class="tab-content hidden">
+            <!-- Summary Cards -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-plus" class="lucide lucide-user-plus w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalIntroducers">18</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Total Introducers</div>
+                        <div class="text-xs text-gray-500">In database</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-up" class="lucide lucide-trending-up w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="activeIntroducers">15</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Active Introducers</div>
+                        <div class="text-xs text-gray-500">Currently referring</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="percent" class="lucide lucide-percent w-6 h-6 text-white" style="stroke-width: 1.5;"><line x1="19" x2="5" y1="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="avgIntroducerRate">12%</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Avg. Commission</div>
+                        <div class="text-xs text-gray-500">Introducer percentage</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="handshake" class="lucide lucide-handshake w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="m11 17 2 2a1 1 0 1 0 3-3"></path><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"></path><path d="m21 3 1 11h-2"></path><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"></path><path d="M3 4h8"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalReferrals">147</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Total Referrals</div>
+                        <div class="text-xs text-gray-500">This year</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Introducers Management -->
+            <div class="mb-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0 mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <i data-lucide-search"="" class="absolute left-3 top-3 w-4 h-4 text-gray-400" style="stroke-width: 1.5;"></i>
+                                <input type="text" id="introducerSearchInput" placeholder="Search introducers..." class="pl-10 pr-4 py-2.5 w-80 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" onkeyup="searchIntroducers()">
+                            </div>
+                            <select id="introducerStatusFilter" onchange="filterIntroducers()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <button onclick="showAddIntroducerModal()" class="primary-btn px-6 py-3 rounded-2xl flex items-center space-x-2 shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-plus" class="lucide lucide-user-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+                                <span>Add Introducer</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Introducers Table -->
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Introducer Database</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500"><span id="filteredIntroducersCount">18</span> introducers</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Introducer Details</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact Info</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Commission Rate</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Referrals</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="introducersTableBody">
+                            <!-- Sample introducer data -->
+                            <tr class="data-row">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-sm">
+                                            MR
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Mike Robertson</div>
+                                            <div class="text-sm text-gray-500">Financial Advisor</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">mike.robertson@financial.com</div>
+                                    <div class="text-sm text-gray-500">+44 7700 900123</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-lg font-semibold text-gray-900">15%</div>
+                                    <div class="text-sm text-gray-500">Standard rate</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-lg font-semibold text-gray-900">23</div>
+                                    <div class="text-sm text-gray-500">This year</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-active px-3 py-1 rounded-full text-xs font-medium">Active</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="edit-3" class="lucide lucide-edit-3 w-4 h-4" style="stroke-width: 1.5;"><path d="M13 21h8"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Splits Tab -->
+        <div id="splitsTab" class="tab-content hidden">
+            <!-- Summary Cards -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pie-chart" class="lucide lucide-pie-chart w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalSplits">24</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Custom Splits</div>
+                        <div class="text-xs text-gray-500">Active configurations</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layers" class="lucide lucide-layers w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="activeSplits">18</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Active Splits</div>
+                        <div class="text-xs text-gray-500">Currently in use</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" class="lucide lucide-alert-triangle w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="pendingSplits">6</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Pending Review</div>
+                        <div class="text-xs text-gray-500">Awaiting approval</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-up" class="lucide lucide-trending-up w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="complexSplits">8</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Complex Splits</div>
+                        <div class="text-xs text-gray-500">Multi-tier configurations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Split Builder -->
+            <div class="mb-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Split Configuration Builder</h3>
+                        <button onclick="showSplitBuilderModal()" class="primary-btn px-6 py-3 rounded-2xl flex items-center space-x-2 shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" class="lucide lucide-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                            <span>Create Custom Split</span>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <h4 class="font-semibold text-gray-900 mb-3">Quick Split Templates</h4>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="applySplitTemplate('50-50')" class="p-4 bg-white rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
+                                        <div class="font-semibold text-gray-900">50/50 Split</div>
+                                        <div class="text-sm text-gray-500">Equal partnership</div>
+                                    </button>
+                                    <button onclick="applySplitTemplate('70-30')" class="p-4 bg-white rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
+                                        <div class="font-semibold text-gray-900">70/30 Split</div>
+                                        <div class="text-sm text-gray-500">Senior partner focus</div>
+                                    </button>
+                                    <button onclick="applySplitTemplate('introducer')" class="p-4 bg-white rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
+                                        <div class="font-semibold text-gray-900">With Introducer</div>
+                                        <div class="text-sm text-gray-500">10% introducer fee</div>
+                                    </button>
+                                    <button onclick="applySplitTemplate('custom')" class="p-4 bg-white rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
+                                        <div class="font-semibold text-gray-900">Custom Split</div>
+                                        <div class="text-sm text-gray-500">Build from scratch</div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                                <h4 class="font-semibold text-gray-900 mb-3">Split Rules</h4>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-green-500" style="stroke-width: 1.5;"><path d="M20 6 9 17l-5-5"></path></svg>
+                                        <span>Total must equal 100%</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-green-500" style="stroke-width: 1.5;"><path d="M20 6 9 17l-5-5"></path></svg>
+                                        <span>Minimum 5% per partner</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-green-500" style="stroke-width: 1.5;"><path d="M20 6 9 17l-5-5"></path></svg>
+                                        <span>Max 5 partners per split</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-green-500" style="stroke-width: 1.5;"><path d="M20 6 9 17l-5-5"></path></svg>
+                                        <span>Finance approval required</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Splits Table -->
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Active Split Configurations</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500">24 configurations</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Configuration Name</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Partners</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Split Breakdown</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cases Using</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr class="data-row">
+                                <td class="px-4 py-4">
+                                    <div class="font-semibold text-gray-900">Premium Partnership</div>
+                                    <div class="text-sm text-gray-500">High-value cases</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex -space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-semibold border-2 border-white">JS</div>
+                                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-semibold border-2 border-white">MK</div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 65%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-600">65/35</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-active px-3 py-1 rounded-full text-xs font-medium">Active</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-lg font-semibold text-gray-900">12</div>
+                                    <div class="text-sm text-gray-500">Active cases</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="edit-3" class="lucide lucide-edit-3 w-4 h-4" style="stroke-width: 1.5;"><path d="M13 21h8"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="copy" class="lucide lucide-copy w-4 h-4" style="stroke-width: 1.5;"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Upload Tab -->
+        <div id="uploadTab" class="tab-content hidden">
+            <div class="space-y-6">
+                <!-- Upload Options -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6">Data Upload Center</h3>
+                            
+                            <!-- File Upload Area -->
+                            <div class="file-upload-area rounded-xl p-8 text-center mb-6" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload-cloud" class="lucide lucide-upload-cloud w-8 h-8 text-blue-600" style="stroke-width: 1.5;"><path d="M12 13v8"></path><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4-4 4 4"></path></svg>
+                                </div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Drop files here to upload</h4>
+                                <p class="text-gray-500 mb-4">Support for CSV, Excel, and JSON formats</p>
+                                <button onclick="document.getElementById('fileInput').click()" class="primary-btn px-6 py-3 rounded-xl">
+                                    Choose Files
+                                </button>
+                                <input type="file" id="fileInput" multiple="" accept=".csv,.xlsx,.json" class="hidden" onchange="handleFileSelect(event)">
+                            </div>
+
+                            <!-- Upload Queue -->
+                            <div id="uploadQueue" class="space-y-3">
+                                <!-- Upload items will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Upload Statistics -->
+                        <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                            <h4 class="font-semibold text-gray-900 mb-4">Upload Statistics</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Today</span>
+                                    <span class="font-semibold text-gray-900">12 files</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">This Week</span>
+                                    <span class="font-semibold text-gray-900">47 files</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Success Rate</span>
+                                    <span class="font-semibold text-green-600">98.3%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Downloads -->
+                        <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                            <h4 class="font-semibold text-gray-900 mb-4">Template Downloads</h4>
+                            <div class="space-y-3">
+                                <button onclick="downloadTemplate('partners')" class="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-4 h-4 text-gray-600" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                                    <span class="text-sm text-gray-700">Partners Template</span>
+                                </button>
+                                <button onclick="downloadTemplate('introducers')" class="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-plus" class="lucide lucide-user-plus w-4 h-4 text-gray-600" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+                                    <span class="text-sm text-gray-700">Introducers Template</span>
+                                </button>
+                                <button onclick="downloadTemplate('splits')" class="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors flex items-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pie-chart" class="lucide lucide-pie-chart w-4 h-4 text-gray-600" style="stroke-width: 1.5;"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>
+                                    <span class="text-sm text-gray-700">Splits Template</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Uploads -->
+                <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Uploads</h3>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm text-gray-500">Last 30 days</span>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50/50 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">File Details</th>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Records</th>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Uploaded By</th>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="data-row">
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-spreadsheet" class="lucide lucide-file-spreadsheet w-5 h-5 text-green-600" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M8 13h2"></path><path d="M14 13h2"></path><path d="M8 17h2"></path><path d="M14 17h2"></path></svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-semibold text-gray-900">partner_data_update.xlsx</div>
+                                                <div class="text-sm text-gray-500">2.3 MB</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Partners</span>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-lg font-semibold text-gray-900">142</div>
+                                        <div class="text-sm text-gray-500">All processed</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <span class="status-success px-3 py-1 rounded-full text-xs font-medium">Success</span>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm text-gray-900">Sarah Chen</div>
+                                        <div class="text-sm text-gray-500">Finance Team</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm text-gray-900">2 hours ago</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center space-x-2">
+                                            <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                            </button>
+                                            <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Log Tab -->
+        <div id="auditTab" class="tab-content hidden">
+            <!-- Summary Cards -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" class="lucide lucide-clipboard-list w-6 h-6 text-white" style="stroke-width: 1.5;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalAuditEntries">156</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Total Entries</div>
+                        <div class="text-xs text-gray-500">Last 30 days</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-circle" class="lucide lucide-alert-circle w-6 h-6 text-white" style="stroke-width: 1.5;"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="criticalEvents">3</span>
+                        </div>
+                <div class="text-sm text-gray-600 mb-2">Critical Events</div>
+                        <div class="text-xs text-gray-500">Require attention</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="systemAccess">89</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">System Access</div>
+                        <div class="text-xs text-gray-500">Login activities</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" class="lucide lucide-shield-check w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="dataChanges">64</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Data Changes</div>
+                        <div class="text-xs text-gray-500">Modifications tracked</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Filters -->
+            <div class="mb-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search absolute left-3 top-3 w-4 h-4 text-gray-400" style="stroke-width: 1.5;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                                <input type="text" id="auditSearchInput" placeholder="Search audit logs..." class="pl-10 pr-4 py-2.5 w-80 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" onkeyup="searchAuditLogs()">
+                            </div>
+                            <select id="auditTypeFilter" onchange="filterAuditLogs()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Types</option>
+                                <option value="login">Login</option>
+                                <option value="upload">Data Upload</option>
+                                <option value="edit">Data Edit</option>
+                                <option value="delete">Delete</option>
+                                <option value="approval">Approval</option>
+                                <option value="generate">Generate</option>
+                            </select>
+                            <select id="auditUserFilter" onchange="filterAuditLogs()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Users</option>
+                                <option value="sarah">Sarah Chen</option>
+                                <option value="david">David Wilson</option>
+                                <option value="emily">Emily Johnson</option>
+                                <option value="system">System</option>
+                            </select>
+                            <input type="date" id="auditDateFilter" onchange="filterAuditLogs()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <button onclick="exportAuditLog()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                <span>Export Log</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Log Table -->
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">System Audit Log</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500">Real-time tracking</span>
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Details</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Impact</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="auditTableBody">
+                            <!-- Critical Event -->
+                            <tr class="audit-row critical data-row">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="action-icon action-delete">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" class="lucide lucide-trash-2 w-4 h-4 text-white" style="stroke-width: 1.5;"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Partner Data Deletion</div>
+                                            <div class="text-sm text-gray-500">Manual override</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-semibold">
+                                            SC
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Sarah Chen</div>
+                                            <div class="text-sm text-gray-500">Finance Manager</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">Deleted partner record: Mike Thompson</div>
+                                    <div class="text-sm text-gray-500">Reference ID: PTR-2024-0087</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="priority-critical px-3 py-1 rounded-full text-xs font-medium">Critical</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-warning px-3 py-1 rounded-full text-xs font-medium">Under Review</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">15 min ago</div>
+                                    <div class="text-sm text-gray-500">14:45 GMT</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-4 h-4" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Data Upload Event -->
+                            <tr class="audit-row data-row">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="action-icon action-upload">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload" class="lucide lucide-upload w-4 h-4 text-white" style="stroke-width: 1.5;"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Bulk Data Upload</div>
+                                            <div class="text-sm text-gray-500">Partner updates</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-semibold">
+                                            DW
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">David Wilson</div>
+                                            <div class="text-sm text-gray-500">Finance Assistant</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">Uploaded partner_data_update.xlsx</div>
+                                    <div class="text-sm text-gray-500">142 records processed successfully</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="priority-medium px-3 py-1 rounded-full text-xs font-medium">Medium</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-success px-3 py-1 rounded-full text-xs font-medium">Success</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">2 hours ago</div>
+                                    <div class="text-sm text-gray-500">13:20 GMT</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Login Event -->
+                            <tr class="audit-row data-row">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="action-icon action-login">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-in" class="lucide lucide-log-in w-4 h-4 text-white" style="stroke-width: 1.5;"><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">System Login</div>
+                                            <div class="text-sm text-gray-500">Successful authentication</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-semibold">
+                                            EJ
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Emily Johnson</div>
+                                            <div class="text-sm text-gray-500">Senior Accountant</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">Login from IP: 192.168.1.45</div>
+                                    <div class="text-sm text-gray-500">Location: London Office</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="priority-low px-3 py-1 rounded-full text-xs font-medium">Low</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-success px-3 py-1 rounded-full text-xs font-medium">Success</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">3 hours ago</div>
+                                    <div class="text-sm text-gray-500">12:15 GMT</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Commission Generation -->
+                            <tr class="audit-row data-row">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="action-icon action-generate">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calculator" class="lucide lucide-calculator w-4 h-4 text-white" style="stroke-width: 1.5;"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Commission Generated</div>
+                                            <div class="text-sm text-gray-500">Automated calculation</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-semibold">
+                                            SYS
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">System</div>
+                                            <div class="text-sm text-gray-500">Automated Process</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">Generated commission for Case #2024-0156</div>
+                                    <div class="text-sm text-gray-500">Amount: £12,450.00</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="priority-medium px-3 py-1 rounded-full text-xs font-medium">Medium</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-success px-3 py-1 rounded-full text-xs font-medium">Complete</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">4 hours ago</div>
+                                    <div class="text-sm text-gray-500">11:30 GMT</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-4 h-4" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Error Event -->
+                            <tr class="audit-row error data-row">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="action-icon action-delete">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" class="lucide lucide-alert-triangle w-4 h-4 text-white" style="stroke-width: 1.5;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Upload Error</div>
+                                            <div class="text-sm text-gray-500">Validation failed</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-semibold">
+                                            DW
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">David Wilson</div>
+                                            <div class="text-sm text-gray-500">Finance Assistant</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">Failed to upload introducer_data.csv</div>
+                                    <div class="text-sm text-gray-500">Error: Invalid email format in row 23</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="priority-high px-3 py-1 rounded-full text-xs font-medium">High</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-error px-3 py-1 rounded-full text-xs font-medium">Error</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900">5 hours ago</div>
+                                    <div class="text-sm text-gray-500">10:45 GMT</div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="refresh-cw" class="lucide lucide-refresh-cw w-4 h-4" style="stroke-width: 1.5;"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Global state
+let currentTab = 'partners';
+let partnersData = [];
+let introducersData = [];
+let splitsData = [];
+let auditData = [];
+
+// Tab switching functionality
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+        tab.classList.remove('opacity-0', 'animate-fade-in-up');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const selectedTab = document.getElementById(tabName + 'Tab');
+    const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    
+    selectedTab.classList.remove('hidden');
+    selectedBtn.classList.add('active');
+    
+    // Animate tab content
+    setTimeout(() => {
+        selectedTab.classList.add('opacity-0', 'animate-fade-in-up');
+        selectedTab.classList.remove('opacity-0');
+    }, 50);
+    
+    currentTab = tabName;
+    
+    // Load tab-specific data
+    switch(tabName) {
+        case 'partners':
+            loadPartnersData();
+            break;
+        case 'introducers':
+            loadIntroducersData();
+            break;
+        case 'splits':
+            loadSplitsData();
+            break;
+        case 'upload':
+            loadUploadData();
+            break;
+        case 'audit':
+            loadAuditData();
+            break;
+    }
+}
+
+// Load partners data
+function loadPartnersData() {
+    // Sample partners data
+    partnersData = [
+        {
+            id: 1,
+            name: "John Smith",
+            email: "john.smith@finance.com",
+            phone: "+44 7700 900123",
+            type: "senior",
+            defaultSplit: 65,
+            status: "active",
+            lastUpdated: "2024-01-15",
+            initials: "JS"
+        },
+        {
+            id: 2,
+            name: "Sarah Johnson",
+            email: "sarah.johnson@finance.com",
+            phone: "+44 7700 900124",
+            type: "associate",
+            defaultSplit: 45,
+            status: "active",
+            lastUpdated: "2024-01-14",
+            initials: "SJ"
+        }
+    ];
+    
+    renderPartnersTable();
+}
+
+// Render partners table
+function renderPartnersTable() {
+    const tbody = document.getElementById('partnersTableBody');
+    tbody.innerHTML = '';
+    
+    partnersData.forEach(partner => {
+        const row = document.createElement('tr');
+        row.className = 'data-row';
+        row.innerHTML = `
+            <td class="px-4 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                        ${partner.initials}
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900">${partner.name}</div>
+                        <div class="text-sm text-gray-500">ID: ${partner.id}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-sm text-gray-900">${partner.email}</div>
+                <div class="text-sm text-gray-500">${partner.phone}</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium capitalize">${partner.type}</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-lg font-semibold text-gray-900">${partner.defaultSplit}%</div>
+                <div class="text-sm text-gray-500">Default rate</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-${partner.status} px-3 py-1 rounded-full text-xs font-medium capitalize">${partner.status}</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-sm text-gray-900">${partner.lastUpdated}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                        <i data-lucide="edit-3" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    </button>
+                    <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+    
+    lucide.createIcons();
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial active tab
+    switchTab('partners');
+    
+    // Add event listeners for animations
+    setTimeout(() => {
+        document.querySelector('aside').classList.remove('opacity-0');
+        document.querySelector('header').classList.remove('opacity-0');
+        document.querySelector('.opacity-0.animate-fade-in-up.delay-200').classList.remove('opacity-0');
+    }, 200);
+});
+
+// Placeholder functions for interactions
+function showAddPartnerModal() {
+    alert('Add Partner modal would open here');
+}
+
+function showAddIntroducerModal() {
+    alert('Add Introducer modal would open here');
+}
+
+function showSplitBuilderModal() {
+    alert('Split Builder modal would open here');
+}
+
+function exportAllData() {
+    alert('Export functionality would be implemented here');
+}
+
+function showDataBackup() {
+    alert('Data backup options would be shown here');
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    // Handle file drop
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(event) {
+    event.currentTarget.classList.remove('dragover');
+}
+
+function handleFileSelect(event) {
+    // Handle file selection
+}
+
+function downloadTemplate(type) {
+    alert(`Downloading ${type} template...`);
+}
+
+function exportAuditLog() {
+    alert('Exporting audit log...');
+}
+
+// Search and filter functions
+function searchPartners() {
+    // Implement partner search
+}
+
+function filterPartners() {
+    // Implement partner filtering
+}
+
+function searchIntroducers() {
+    // Implement introducer search
+}
+
+function filterIntroducers() {
+    // Implement introducer filtering
+}
+
+function searchAuditLogs() {
+    // Implement audit log search
+}
+
+function filterAuditLogs() {
+    // Implement audit log filtering
+}
+
+function applySplitTemplate(templateType) {
+    alert(`Applying ${templateType} template...`);
+}
+
+function loadIntroducersData() {
+    // Load introducers data
+}
+
+function loadSplitsData() {
+    // Load splits data
+}
+
+function loadUploadData() {
+    // Load upload data
+}
+
+function loadAuditData() {
+    // Load audit data
+}
+</script>
+
+
+</body></html>
