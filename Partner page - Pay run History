@@ -1,0 +1,801 @@
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Run History - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+from { opacity: 0; transform: translateX(-30px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+from { opacity: 0; transform: scale(0.8); }
+to { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+@keyframes slideInRight {
+from { opacity: 0; transform: translateX(100%); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideOutRight {
+from { opacity: 1; transform: translateX(0); }
+to { opacity: 0; transform: translateX(100%); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-fade-in-left { animation: fadeInLeft 0.8s ease-out forwards; }
+.animate-slide-down { animation: slideDown 0.6s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-slide-in-right { animation: slideInRight 0.4s ease-out forwards; }
+.animate-slide-out-right { animation: slideOutRight 0.4s ease-out forwards; }
+.glass-effect {
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+}
+.opacity-0 { opacity: 0; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.modal-backdrop {
+background: rgba(0, 0, 0, 0.5);
+backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
+}
+.tab-active {
+background: linear-gradient(135deg, #3b82f6, #6366f1);
+color: white;
+box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+}
+.tab-inactive {
+background: rgba(255, 255, 255, 0.8);
+color: #6b7280;
+}
+.tab-inactive:hover {
+background: rgba(255, 255, 255, 0.95);
+color: #374151;
+}
+.status-completed { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-processing { background: rgba(245, 158, 11, 0.1); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.2); }
+.status-failed { background: rgba(239, 68, 68, 0.1); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.2); }
+.invoice-row { transition: all 0.2s ease; }
+.invoice-row:hover { background: rgba(59, 130, 246, 0.05); transform: translateX(4px); }
+.custom-checkbox { appearance: none; }
+.custom-checkbox:checked { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+.download-option { border: 2px solid transparent; transition: all 0.3s ease; }
+.download-option:hover { border-color: #e5e7eb; }
+.download-option.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+.clickable-link { color: #3b82f6; cursor: pointer; transition: all 0.2s ease; }
+.clickable-link:hover { color: #1d4ed8; text-decoration: underline; }
+.timeline-item { position: relative; padding-left: 2rem; }
+.timeline-item::before { content: ''; position: absolute; left: 0.5rem; top: 0.5rem; width: 0.5rem; height: 0.5rem; background: #3b82f6; border-radius: 50%; }
+.timeline-item::after { content: ''; position: absolute; left: 0.75rem; top: 1rem; width: 2px; height: calc(100% - 0.5rem); background: #e5e7eb; }
+.timeline-item:last-child::after { display: none; }
+</style></head>
+<body class="font-inter h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+
+<!-- Sidebar -->
+<aside class="opacity-0 animate-fade-in-left fixed z-30 inset-y-0 left-0 w-16 md:w-20 glass-effect flex flex-col transition-all duration-500 border-r pt-6 pb-6 shadow-2xl items-center">
+    <div class="flex flex-col space-y-8">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-sm tracking-tight bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg">
+            NX
+        </div>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="home" class="lucide lucide-home w-5 h-5" style="stroke-width: 1.5;"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-indigo-600 bg-white/80 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-5 h-5" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bar-chart-3" class="lucide lucide-bar-chart-3 w-5 h-5" style="stroke-width: 1.5;"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-5 h-5" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        </button>
+    </div>
+    <div class="mt-auto">
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" class="lucide lucide-settings w-5 h-5" style="stroke-width: 1.5;"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-20 min-h-screen ml-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Header -->
+        <header class="opacity-0 animate-slide-down delay-100 flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+            <div class="">
+                <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-2">
+                    Partner Payments
+                </h1>
+                <p class="text-gray-500 font-medium">
+                    Manage invoices and track payment history
+                </p>
+            </div>
+            <div class="flex items-center space-x-4 mt-6 lg:mt-0">
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search absolute left-4 top-3.5 w-5 h-5 text-gray-400" style="stroke-width: 1.5;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                    <input type="text" placeholder="Search pay runs..." class="pl-12 pr-4 py-3 w-72 rounded-2xl border-0 glass-effect shadow-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition-all duration-300 placeholder-gray-400">
+                </div>
+                <button onclick="openDownloadModal()" class="px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-5 h-5" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                    <span>Download All</span>
+                </button>
+                <button class="glass-effect hover:shadow-xl transition-all duration-300 relative rounded-2xl p-3 shadow-lg flex items-center space-x-3" onclick="document.getElementById('notifications-modal').classList.remove('hidden'); document.body.style.overflow='hidden'">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bell" class="lucide lucide-bell w-[20px] h-[20px]" style="stroke-width: 1.5; width: 20px; height: 20px; color: rgb(75, 85, 99);"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+  <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-white text-[10px] font-semibold select-none" style="font-family: Inter, sans-serif;">
+    3
+  </div>
+</button>
+                <div class="flex items-center space-x-3 glass-effect px-4 py-2 rounded-2xl shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&amp;h=96&amp;fit=crop&amp;crop=face" alt="Profile" class="w-12 h-12 object-cover border-white border-2 rounded-xl shadow-md">
+                    <div class="hidden md:block">
+                        <p class="text-sm font-semibold text-gray-900">Sarah Mitchell</p>
+                        <p class="text-xs text-gray-500">Senior Partner</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="opacity-0 animate-fade-in-up delay-200 mb-8">
+            <div class="glass-effect rounded-2xl p-2 shadow-lg border border-white/20 inline-flex space-x-1">
+                <button onclick="switchTab('invoices')" id="invoices-tab" class="tab-inactive px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-4 h-4" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                    <span class="">Current Invoices</span>
+                </button>
+                <button onclick="switchTab('payrun-history')" id="payrun-history-tab" class="tab-active px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" class="lucide lucide-clock w-4 h-4" style="stroke-width: 1.5;"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                    <span>Pay Run History</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pay Run History Tab Content -->
+        <div id="payrun-history-content" class="">
+            <!-- Year-to-Date Summary -->
+            <div class="opacity-0 animate-fade-in-up delay-300 mb-8">
+                <div class="glass-effect rounded-3xl shadow-xl border border-white/20 p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 tracking-tight">2024 Payment Summary</h2>
+                        <div class="flex items-center space-x-4">
+                            <select class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option>2024</option>
+                                <option>2023</option>
+                                <option>2022</option>
+                            </select>
+                            <button class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 text-sm flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                <span class="">Export Annual Report</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 border rounded-2xl pt-6 pr-6 pb-6 pl-6">
+    <div class="flex items-center justify-between mb-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="dollar-sign" class="lucide lucide-dollar-sign w-[24px] h-[24px]" style="width: 24px; height: 24px; color: rgb(255, 255, 255);"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <div class="flex items-center space-x-1 px-2 py-1 bg-blue-100 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-up" class="lucide lucide-arrow-up w-3 h-3 text-blue-600" style="stroke-width: 2;"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg>
+            <span class="text-xs font-medium text-blue-600">+24.8%</span>
+        </div>
+    </div>
+    <div class="text-2xl font-semibold text-gray-900 mb-1">£1,247,850</div>
+    <div class="text-sm text-gray-600">Total Paid YTD</div>
+</div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar" class="lucide lucide-calendar w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
+                                </div>
+                                <div class="flex items-center space-x-1 px-2 py-1 bg-green-100 rounded-full">
+                                    <span class="text-xs font-medium text-green-600">22</span>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-semibold text-gray-900 mb-1">22</div>
+                            <div class="text-sm text-gray-600">Pay Runs Completed</div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-up" class="lucide lucide-trending-up w-[24px] h-[24px]" style="stroke-width: 1.5; width: 24px; height: 24px; color: rgb(255, 255, 255);"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>
+                                </div>
+                                <div class="text-xs text-gray-500">avg per run</div>
+                            </div>
+                            <div class="text-2xl font-semibold text-gray-900 mb-1">£56,720</div>
+                            <div class="text-sm text-gray-600">Average Payment</div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" class="lucide lucide-clock w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                                </div>
+                                <div class="text-xs text-gray-500">days</div>
+                            </div>
+                            <div class="text-2xl font-semibold text-gray-900 mb-1">16.2</div>
+                            <div class="text-sm text-gray-600">Avg Payment Cycle</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="opacity-0 animate-fade-in-up delay-400 mb-8">
+                <div class="glass-effect border-white/20 border rounded-2xl pt-6 pr-6 pb-6 pl-6 shadow-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                            <select class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <option>Last 12 months</option>
+                                <option>Last 6 months</option>
+                                <option>Last 3 months</option>
+                                <option>This year</option>
+                                <option>Custom range</option>
+                            </select>
+                        </div>
+                        <div class="">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <option>All Statuses</option>
+                                <option>Completed</option>
+                                <option>Processing</option>
+                                <option>Failed</option>
+                            </select>
+                        </div>
+                        <div class="">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Amount Range</label>
+                            <select class="w-full focus:ring-2 focus:ring-indigo-500 focus:border-transparent border-gray-200 border rounded-xl pt-2 pr-4 pb-2 pl-4"><option>Invoice Amount</option><option>Above £50,000</option><option>£25,000 - £50,000</option><option>Below £25,000</option></select>
+                        </div>
+                        <div class="flex items-end">
+                            <button class="w-full px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300">
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pay Run History Table -->
+            <div class="opacity-0 animate-fade-in-up delay-500 glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900">Pay Run History</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50/50">
+                            <tr class="">
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pay Run Date</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Amount</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoices</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Processing Time</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openPayRunModal('PR-2024-011')">
+                                <td class="px-6 py-4">
+                                    <div class="">
+                                        <div class="font-semibold text-gray-900">November 15, 2024</div>
+                                        <div class="text-sm text-gray-500">Pay Run #PR-2024-011</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 font-semibold text-gray-900">$89,450.00</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-semibold text-gray-900">4</span>
+                                        <span class="text-sm text-gray-500">invoices</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500">2 business days</td>
+                                <td class="px-6 py-4">
+                                    <span class="status-completed inline-flex items-center px-3 py-1 rounded-full text-xs font-medium">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                    <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300 mr-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4 mr-1" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                        Statement
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openPayRunModal('PR-2024-010')">
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <div class="font-semibold text-gray-900">November 1, 2024</div>
+                                        <div class="text-sm text-gray-500">Pay Run #PR-2024-010</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 font-semibold text-gray-900">$62,750.00</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-semibold text-gray-900">3</span>
+                                        <span class="text-sm text-gray-500">invoices</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500">1 business day</td>
+                                <td class="px-6 py-4">
+                                    <span class="status-completed inline-flex items-center px-3 py-1 rounded-full text-xs font-medium">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                    <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300 mr-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4 mr-1" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                                        Statement
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Pay Run Details Modal -->
+<div id="payrun-modal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-backdrop fixed inset-0" onclick="closePayRunModal()"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="glass-effect max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border border-white/20 animate-scale-in">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 tracking-tight">Pay Run Details</h2>
+                        <p class="text-sm text-gray-500 mt-1" id="payrun-details-subtitle">Pay Run #PR-2024-011 • November 15, 2024</p>
+                    </div>
+                    <button onclick="closePayRunModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-5 h-5" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
+                        <div class="text-sm text-gray-600 mb-1">Total Amount</div>
+                        <div class="text-2xl font-semibold text-gray-900">$89,450.00</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-100">
+                        <div class="text-sm text-gray-600 mb-1">Invoices Processed</div>
+                        <div class="text-2xl font-semibold text-gray-900">4</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-100">
+                        <div class="text-sm text-gray-600 mb-1">Processing Time</div>
+                        <div class="text-2xl font-semibold text-gray-900">2 days</div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Invoices in this Pay Run</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center text-white font-semibold">
+                                            AC
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="clickable-link font-semibold text-gray-900" onclick="openClientQuickView(event, 'acme-corp')">Acme Corporation</span>
+                                                <span class="text-gray-300">•</span>
+                                                <span class="clickable-link text-gray-600" onclick="openMatterQuickView(event, 'merger-acquisition')">Merger &amp; Acquisition Advisory</span>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Invoice #INV-2024-1156 • Due: Nov 30, 2024</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-900">$32,500.00</div>
+                                    <div class="text-sm text-gray-500">Paid Nov 15</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-white font-semibold">
+                                            TC
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="clickable-link font-semibold text-gray-900" onclick="openClientQuickView(event, 'techcorp')">TechCorp Industries</span>
+                                                <span class="text-gray-300">•</span>
+                                                <span class="clickable-link text-gray-600" onclick="openMatterQuickView(event, 'ip-litigation')">IP Litigation Defense</span>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Invoice #INV-2024-1155 • Due: Nov 28, 2024</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-900">$28,750.00</div>
+                                    <div class="text-sm text-gray-500">Paid Nov 15</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white font-semibold">
+                                            GH
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="clickable-link font-semibold text-gray-900" onclick="openClientQuickView(event, 'global-health')">Global Health Partners</span>
+                                                <span class="text-gray-300">•</span>
+                                                <span class="clickable-link text-gray-600" onclick="openMatterQuickView(event, 'regulatory-compliance')">Regulatory Compliance</span>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Invoice #INV-2024-1154 • Due: Nov 25, 2024</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-900">$18,900.00</div>
+                                    <div class="text-sm text-gray-500">Paid Nov 15</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white font-semibold">
+                                            FS
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="clickable-link font-semibold text-gray-900" onclick="openClientQuickView(event, 'finserv')">Financial Services LLC</span>
+                                                <span class="text-gray-300">•</span>
+                                                <span class="clickable-link text-gray-600" onclick="openMatterQuickView(event, 'contract-review')">Contract Review &amp; Negotiation</span>
+                                            </div>
+                                            <div class="text-sm text-gray-500">Invoice #INV-2024-1153 • Due: Nov 22, 2024</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-900">$9,300.00</div>
+                                    <div class="text-sm text-gray-500">Paid Nov 15</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Timeline -->
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <h4 class="text-md font-semibold text-gray-900 mb-4">Processing Timeline</h4>
+                        <div class="space-y-4">
+                            <div class="timeline-item">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-sm font-medium text-gray-900">Pay run initiated</div>
+                                    <div class="text-xs text-gray-500">Nov 13, 2024 at 9:00 AM</div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">4 invoices selected for payment processing</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-sm font-medium text-gray-900">Approval received</div>
+                                    <div class="text-xs text-gray-500">Nov 13, 2024 at 2:30 PM</div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Approved by Sarah Mitchell</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-sm font-medium text-gray-900">Bank transfer processed</div>
+                                    <div class="text-xs text-gray-500">Nov 15, 2024 at 10:15 AM</div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Total amount: $89,450.00</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-sm font-medium text-green-600">Payment completed</div>
+                                    <div class="text-xs text-gray-500">Nov 15, 2024 at 3:45 PM</div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">All payments confirmed and statements sent</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Client Quick View Modal -->
+<div id="client-modal" class="fixed inset-0 z-60 hidden">
+    <div class="modal-backdrop fixed inset-0" onclick="closeClientModal()"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="glass-effect max-w-2xl w-full rounded-2xl shadow-2xl border border-white/20 animate-scale-in">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div id="client-avatar" class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center text-white font-semibold text-lg">
+                            AC
+                        </div>
+                        <div>
+                            <h2 id="client-name" class="text-xl font-semibold text-gray-900">Acme Corporation</h2>
+                            <p id="client-type" class="text-sm text-gray-500">Technology • Fortune 500</p>
+                        </div>
+                    </div>
+                    <button onclick="closeClientModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-5 h-5" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                        <div class="text-sm text-gray-600 mb-1">YTD Billings</div>
+                        <div class="text-xl font-semibold text-gray-900">$324,750</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                        <div class="text-sm text-gray-600 mb-1">Active Matters</div>
+                        <div class="text-xl font-semibold text-gray-900">3</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-900">Recent Activity</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                            <div class="text-sm text-gray-900">Invoice #INV-2024-1156 paid</div>
+                            <div class="text-sm text-gray-500">Nov 15</div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                            <div class="text-sm text-gray-900">New matter opened: M&amp;A Advisory</div>
+                            <div class="text-sm text-gray-500">Oct 28</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matter Quick View Modal -->
+<div id="matter-modal" class="fixed inset-0 z-60 hidden">
+    <div class="modal-backdrop fixed inset-0" onclick="closeMatterModal()"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="glass-effect max-w-2xl w-full rounded-2xl shadow-2xl border border-white/20 animate-scale-in">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="matter-name" class="text-xl font-semibold text-gray-900">Merger &amp; Acquisition Advisory</h2>
+                        <p id="matter-details" class="text-sm text-gray-500 mt-1">Matter #M-2024-089 • Opened Oct 28, 2024</p>
+                    </div>
+                    <button onclick="closeMatterModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-5 h-5" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                        <div class="text-sm text-gray-600 mb-1">Total Billed</div>
+                        <div class="text-xl font-semibold text-gray-900">$87,500</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                        <div class="text-sm text-gray-600 mb-1">Hours Logged</div>
+                        <div class="text-xl font-semibold text-gray-900">156.5</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+                        <div class="text-sm text-gray-600 mb-1">Team Members</div>
+                        <div class="text-xl font-semibold text-gray-900">4</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-900">Recent Invoices</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">Invoice #INV-2024-1156</div>
+                                <div class="text-xs text-gray-500">Nov 1 - Nov 15, 2024</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-gray-900">$32,500</div>
+                                <div class="text-xs text-green-600">Paid</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">Invoice #INV-2024-1142</div>
+                                <div class="text-xs text-gray-500">Oct 16 - Oct 31, 2024</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-gray-900">$28,750</div>
+                                <div class="text-xs text-green-600">Paid</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Tab switching functionality
+function switchTab(tabName) {
+    const invoicesTab = document.getElementById('invoices-tab');
+    const payrunTab = document.getElementById('payrun-history-tab');
+    
+    if (tabName === 'invoices') {
+        invoicesTab.className = 'tab-active px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2';
+        payrunTab.className = 'tab-inactive px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2';
+    } else {
+        invoicesTab.className = 'tab-inactive px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2';
+        payrunTab.className = 'tab-active px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2';
+    }
+}
+
+// Pay Run Modal Functions
+function openPayRunModal(payRunId) {
+    document.getElementById('payrun-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePayRunModal() {
+    document.getElementById('payrun-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Client Modal Functions
+function openClientQuickView(event, clientId) {
+    event.stopPropagation();
+    event.preventDefault();
+    
+    const clientData = {
+        'acme-corp': {
+            name: 'Acme Corporation',
+            type: 'Technology • Fortune 500',
+            avatar: 'AC',
+            avatarColor: 'from-blue-500 to-indigo-500',
+            ytdBilling: '$324,750',
+            activeMatters: '3'
+        },
+        'techcorp': {
+            name: 'TechCorp Industries',
+            type: 'Manufacturing • Public Company',
+            avatar: 'TC',
+            avatarColor: 'from-green-500 to-emerald-500',
+            ytdBilling: '$189,200',
+            activeMatters: '2'
+        },
+        'global-health': {
+            name: 'Global Health Partners',
+            type: 'Healthcare • Private Equity',
+            avatar: 'GH',
+            avatarColor: 'from-purple-500 to-pink-500',
+            ytdBilling: '$156,800',
+            activeMatters: '1'
+        },
+        'finserv': {
+            name: 'Financial Services LLC',
+            type: 'Financial Services • Mid-Market',
+            avatar: 'FS',
+            avatarColor: 'from-orange-500 to-red-500',
+            ytdBilling: '$98,450',
+            activeMatters: '2'
+        }
+    };
+    
+    const client = clientData[clientId];
+    if (client) {
+        document.getElementById('client-name').textContent = client.name;
+        document.getElementById('client-type').textContent = client.type;
+        document.getElementById('client-avatar').textContent = client.avatar;
+        document.getElementById('client-avatar').className = `w-16 h-16 bg-gradient-to-br ${client.avatarColor} rounded-xl flex items-center justify-center text-white font-semibold text-lg`;
+        document.getElementById('client-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeClientModal() {
+    document.getElementById('client-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Matter Modal Functions
+function openMatterQuickView(event, matterId) {
+    event.stopPropagation();
+    event.preventDefault();
+    
+    const matterData = {
+        'merger-acquisition': {
+            name: 'Merger & Acquisition Advisory',
+            details: 'Matter #M-2024-089 • Opened Oct 28, 2024',
+            totalBilled: '$87,500',
+            hoursLogged: '156.5',
+            teamMembers: '4'
+        },
+        'ip-litigation': {
+            name: 'IP Litigation Defense',
+            details: 'Matter #M-2024-067 • Opened Sep 12, 2024',
+            totalBilled: '$142,300',
+            hoursLogged: '248.2',
+            teamMembers: '6'
+        },
+        'regulatory-compliance': {
+            name: 'Regulatory Compliance',
+            details: 'Matter #M-2024-045 • Opened Aug 5, 2024',
+            totalBilled: '$65,400',
+            hoursLogged: '118.7',
+            teamMembers: '3'
+        },
+        'contract-review': {
+            name: 'Contract Review & Negotiation',
+            details: 'Matter #M-2024-098 • Opened Nov 8, 2024',
+            totalBilled: '$23,750',
+            hoursLogged: '42.1',
+            teamMembers: '2'
+        }
+    };
+    
+    const matter = matterData[matterId];
+    if (matter) {
+        document.getElementById('matter-name').textContent = matter.name;
+        document.getElementById('matter-details').textContent = matter.details;
+        document.getElementById('matter-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeMatterModal() {
+    document.getElementById('matter-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Download Modal (placeholder function)
+function openDownloadModal() {
+    alert('Download functionality would be implemented here');
+}
+
+// Close modals on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closePayRunModal();
+        closeClientModal();
+        closeMatterModal();
+    }
+});
+</script>
+
+
+</body></html>
