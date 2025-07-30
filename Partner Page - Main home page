@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partner Invoices - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+from { opacity: 0; transform: translateX(-30px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+from { opacity: 0; transform: scale(0.8); }
+to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-fade-in-left { animation: fadeInLeft 0.8s ease-out forwards; }
+.animate-slide-down { animation: slideDown 0.6s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
+.glass-effect {
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+}
+.opacity-0 { opacity: 0; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.modal-backdrop {
+background: rgba(0, 0, 0, 0.5);
+backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
+}
+.own-split { background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3b82f6; }
+.commission-split { background: rgba(34, 197, 94, 0.08); border-left: 3px solid #22c55e; }
+.other-split { background: rgba(156, 163, 175, 0.05); border-left: 3px solid #9ca3af; }
+.special-split { background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; }
+.tooltip {
+visibility: hidden;
+opacity: 0;
+position: absolute;
+z-index: 1000;
+bottom: 125%;
+left: 50%;
+transform: translateX(-50%);
+background-color: rgba(0, 0, 0, 0.9);
+color: white;
+text-align: center;
+padding: 8px 12px;
+border-radius: 8px;
+font-size: 0.875rem;
+line-height: 1.25rem;
+white-space: nowrap;
+transition: opacity 0.3s;
+}
+.tooltip::after {
+content: "";
+position: absolute;
+top: 100%;
+left: 50%;
+margin-left: -5px;
+border-width: 5px;
+border-style: solid;
+border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+}
+.tooltip-container:hover .tooltip {
+visibility: visible;
+opacity: 1;
+}
+.help-section {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.3s ease-in-out;
+}
+.help-section.expanded {
+max-height: 500px;
+}
+</style></head>
+<body class="font-inter h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+
+<!-- Sidebar -->
+<aside class="opacity-0 animate-fade-in-left fixed z-30 inset-y-0 left-0 w-16 md:w-20 glass-effect flex flex-col transition-all duration-500 border-r pt-6 pb-6 shadow-2xl items-center">
+    <div class="flex flex-col space-y-8">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-sm tracking-tight bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg">
+            NX
+        </div>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <i data-lucide="home" class="w-5 h-5" style="stroke-width: 1.5;"></i>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-indigo-600 bg-white/80 shadow-lg">
+            <i data-lucide="file-text" class="w-5 h-5" style="stroke-width: 1.5;"></i>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <i data-lucide="bar-chart-3" class="w-5 h-5" style="stroke-width: 1.5;"></i>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <i data-lucide="users" class="w-5 h-5" style="stroke-width: 1.5;"></i>
+        </button>
+    </div>
+    <div class="mt-auto">
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <i data-lucide="settings" class="w-5 h-5" style="stroke-width: 1.5;"></i>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-20 min-h-screen ml-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Header -->
+        <header class="opacity-0 animate-slide-down delay-100 flex flex-col lg:flex-row lg:items-center justify-between mb-10">
+            <div>
+                <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-2">
+                    Partner Invoices
+                </h1>
+                <p class="text-gray-500 font-medium">
+                    Manage your self-billed invoices and track payments
+                </p>
+            </div>
+            <div class="flex items-center space-x-4 mt-6 lg:mt-0">
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" style="stroke-width: 1.5;"></i>
+                    <input type="text" placeholder="Search invoices..." class="pl-12 pr-4 py-3 w-72 rounded-2xl border-0 glass-effect shadow-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition-all duration-300 placeholder-gray-400">
+                </div>
+                <button class="p-3 rounded-2xl glass-effect shadow-lg hover:shadow-xl transition-all duration-300 relative">
+                    <i data-lucide="bell" class="w-5 h-5 text-gray-600" style="stroke-width: 1.5;"></i>
+                    <div class="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full"></div>
+                </button>
+                <div class="flex items-center space-x-3 glass-effect px-4 py-2 rounded-2xl shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop&crop=face" alt="Profile" class="w-12 h-12 object-cover border-white border-2 rounded-xl shadow-md">
+                    <div class="hidden md:block">
+                        <p class="text-sm font-semibold text-gray-900">Sarah Mitchell</p>
+                        <p class="text-xs text-gray-500">Senior Partner</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Payment Summary Widget -->
+        <div class="opacity-0 animate-fade-in-up delay-200 mb-8">
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 tracking-tight">Payment Summary</h2>
+                    <div class="text-sm text-gray-500">As of November 2024</div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Amount Owed -->
+                    <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 border border-red-100">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <h3 class="text-sm font-medium text-gray-600">Amount Owed to You</h3>
+                                    <div class="tooltip-container relative">
+                                        <i data-lucide="info" class="w-4 h-4 text-gray-400 cursor-help" style="stroke-width: 1.5;"></i>
+                                        <div class="tooltip">Total of approved invoices awaiting payment from the firm</div>
+                                    </div>
+                                </div>
+                                <div class="text-2xl lg:text-3xl font-semibold text-gray-900 mb-2">$45,200.00</div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex items-center space-x-1 px-2 py-1 bg-red-100 rounded-full">
+                                        <i data-lucide="arrow-up" class="w-3 h-3 text-red-600" style="stroke-width: 2;"></i>
+                                        <span class="text-xs font-medium text-red-600">+12.5%</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">vs last month</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center shadow-lg">
+                                <i data-lucide="clock" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-red-200">
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">3 invoices</span> pending payment
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Pay Run -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <h3 class="text-sm font-medium text-gray-600">Next Pay Run</h3>
+                                    <div class="tooltip-container relative">
+                                        <i data-lucide="info" class="w-4 h-4 text-gray-400 cursor-help" style="stroke-width: 1.5;"></i>
+                                        <div class="tooltip">Amount scheduled for payment in the next pay run cycle</div>
+                                    </div>
+                                </div>
+                                <div class="text-2xl lg:text-3xl font-semibold text-gray-900 mb-1">$28,500.00</div>
+                                <div class="text-xs text-blue-600 font-medium mb-2">December 1, 2024</div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex items-center space-x-1 px-2 py-1 bg-blue-100 rounded-full">
+                                        <i data-lucide="arrow-down" class="w-3 h-3 text-blue-600" style="stroke-width: 2;"></i>
+                                        <span class="text-xs font-medium text-blue-600">-8.2%</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">vs last pay run</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                                <i data-lucide="calendar" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-blue-200">
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">2 invoices</span> scheduled
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paid This Month -->
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <h3 class="text-sm font-medium text-gray-600">Paid This Month</h3>
+                                    <div class="tooltip-container relative">
+                                        <i data-lucide="info" class="w-4 h-4 text-gray-400 cursor-help" style="stroke-width: 1.5;"></i>
+                                        <div class="tooltip">Total amount paid to you in November 2024</div>
+                                    </div>
+                                </div>
+                                <div class="text-2xl lg:text-3xl font-semibold text-gray-900 mb-2">$89,450.00</div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex items-center space-x-1 px-2 py-1 bg-green-100 rounded-full">
+                                        <i data-lucide="arrow-up" class="w-3 h-3 text-green-600" style="stroke-width: 2;"></i>
+                                        <span class="text-xs font-medium text-green-600">+24.8%</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">vs last month</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+                                <i data-lucide="check-circle" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-green-200">
+                            <div class="text-xs text-gray-600">
+                                <span class="font-medium">4 invoices</span> paid
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Summary Info -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Total Outstanding:</span>
+                            <span class="font-semibold text-gray-900">$73,700.00</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Average Payment Cycle:</span>
+                            <span class="font-semibold text-gray-900">18 days</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">YTD Payments:</span>
+                            <span class="font-semibold text-gray-900">$892,340.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Summary Cards (keeping for additional metrics) -->
+        <div class="opacity-0 animate-fade-in-up delay-300 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">Total Invoiced</p>
+                        <p class="text-2xl font-semibold text-gray-900">$248,750</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">Active Clients</p>
+                        <p class="text-2xl font-semibold text-gray-900">12</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                        <i data-lucide="users" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">Average Fee Split</p>
+                        <p class="text-2xl font-semibold text-gray-900">78%</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+                        <i data-lucide="percent" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">This Month vs Last</p>
+                        <p class="text-2xl font-semibold text-green-600">+18.5%</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-white" style="stroke-width: 1.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="opacity-0 animate-fade-in-up delay-400 mb-8">
+            <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option>All Statuses</option>
+                            <option>Pending Approval</option>
+                            <option>Approved</option>
+                            <option>Rejected</option>
+                            <option>Awaiting Payment</option>
+                            <option>Scheduled for Pay Run</option>
+                            <option>Paid</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <input type="date" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                        <select class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option>Date (Newest)</option>
+                            <option>Date (Oldest)</option>
+                            <option>Amount (High to Low)</option>
+                            <option>Amount (Low to High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Client</label>
+                        <input type="text" placeholder="Filter by client" class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button class="w-full px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Table -->
+        <div class="opacity-0 animate-fade-in-up delay-500 glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900">Self-Billed Invoices</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50/50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoice</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Client & Matter</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Your Share</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openInvoiceModal('INV-2024-001')">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-gray-900">#INV-2024-001</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">TechCorp Solutions</div>
+                                    <div class="text-sm text-gray-500">Corporate Restructuring</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Nov 15, 2024</td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">$45,750.00</td>
+                            <td class="px-6 py-4 font-semibold text-blue-600">$38,475.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Paid</span>
+                            </td>
+                            <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1" style="stroke-width: 1.5;"></i>
+                                    Download
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openInvoiceModal('INV-2024-002')">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-gray-900">#INV-2024-002</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Global Industries</div>
+                                    <div class="text-sm text-gray-500">M&A Advisory</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Nov 12, 2024</td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">$28,500.00</td>
+                            <td class="px-6 py-4 font-semibold text-blue-600">$19,950.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Scheduled for Pay Run</span>
+                            </td>
+                            <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1" style="stroke-width: 1.5;"></i>
+                                    Download
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openInvoiceModal('INV-2024-003')">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-gray-900">#INV-2024-003</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">StartupCo</div>
+                                    <div class="text-sm text-gray-500">Legal Consultation</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Nov 8, 2024</td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">$16,750.00</td>
+                            <td class="px-6 py-4 font-semibold text-blue-600">$8,550.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Awaiting Payment</span>
+                            </td>
+                            <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1" style="stroke-width: 1.5;"></i>
+                                    Download
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openInvoiceModal('INV-2024-004')">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-gray-900">#INV-2024-004</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Retail Group Inc</div>
+                                    <div class="text-sm text-gray-500">Employment Law</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Nov 5, 2024</td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">$22,300.00</td>
+                            <td class="px-6 py-4 font-semibold text-blue-600">$17,395.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Pending Approval</span>
+                            </td>
+                            <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1" style="stroke-width: 1.5;"></i>
+                                    Download
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/30 hover:cursor-pointer transition-all duration-300" onclick="openInvoiceModal('INV-2024-005')">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-gray-900">#INV-2024-005</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">MedTech Partners</div>
+                                    <div class="text-sm text-gray-500">Regulatory Compliance</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Nov 3, 2024</td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">$35,200.00</td>
+                            <td class="px-6 py-4 font-semibold text-blue-600">$24,640.00</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Paid</span>
+                            </td>
+                            <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                                <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-300">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1" style="stroke-width: 1.5;"></i>
+                                    Download
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fee Split Help Section -->
+        <div class="opacity-0 animate-fade-in-up delay-600 mt-8">
+            <div class="glass-effect rounded-2xl shadow-lg border border-white/20 overflow-hidden">
+                <button onclick="toggleHelpSection()" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50/50 transition-colors duration-300">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-indigo-600" style="stroke-width: 1.5;"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Understanding Fee Splits</h3>
+                    </div>
+                    <i data-lucide="chevron-down" id="help-chevron" class="w-5 h-5 text-gray-400 transition-transform duration-300" style="stroke-width: 1.5;"></i>
+                </button>
+                
+                <div id="help-content" class="help-section px-6">
+                    <div class="pb-6">
+                        <p class="text-gray-600 mb-6">Fee splits determine how invoice amounts are distributed between partners and the firm. Here are the different types of splits you may encounter:</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="own-split p-4 rounded-xl">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+                                    <h4 class="font-semibold text-gray-900">Standard Partner Split</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">Your regular percentage split based on your partnership agreement, typically ranging from 60-85%.</p>
+                                <p class="text-xs text-blue-600 font-medium">Example: 84% of invoice amount</p>
+                            </div>
+                            
+                            <div class="commission-split p-4 rounded-xl">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                                    <h4 class="font-semibold text-gray-900">Commission Split</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">Higher percentage for business development or special arrangements with originating partners.</p>
+                                <p class="text-xs text-green-600 font-medium">Example: 90% of invoice amount</p>
+                            </div>
+                            
+                            <div class="special-split p-4 rounded-xl">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <div class="w-4 h-4 bg-amber-500 rounded-full"></div>
+                                    <h4 class="font-semibold text-gray-900">Special Arrangement</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">Custom split arrangements for specific clients or matters, negotiated separately.</p>
+                                <p class="text-xs text-amber-600 font-medium">Example: 75% + bonus structure</p>
+                            </div>
+                            
+                            <div class="other-split p-4 rounded-xl">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <div class="w-4 h-4 bg-gray-500 rounded-full"></div>
+                                    <h4 class="font-semibold text-gray-900">Reduced Split</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">Lower percentage due to high firm support, junior matters, or other circumstances.</p>
+                                <p class="text-xs text-gray-600 font-medium">Example: 65% of invoice amount</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <div class="flex items-start space-x-3">
+                                <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5" style="stroke-width: 1.5;"></i>
+                                <div>
+                                    <h5 class="font-semibold text-blue-900 mb-1">Important Notes</h5>
+                                    <ul class="text-sm text-blue-800 space-y-1">
+                                        <li>• Fee splits are determined by your partnership agreement and individual client arrangements</li>
+                                        <li>• Special splits are highlighted in invoice details and require separate approval</li>
+                                        <li>• Contact the finance team if you have questions about a specific split calculation</li>
+                                        <li>• All splits are calculated before taxes and other deductions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Invoice Detail Modal -->
+<div id="invoice-modal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-backdrop fixed inset-0" onclick="closeInvoiceModal()"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="glass-effect rounded-3xl shadow-2xl border border-white/20 w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in">
+            <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                <h2 class="text-2xl font-semibold text-gray-900">Invoice Details</h2>
+                <button onclick="closeInvoiceModal()" class="p-2 rounded-xl hover:bg-gray-100 transition-colors duration-300">
+                    <i data-lucide="x" class="w-6 h-6 text-gray-500" style="stroke-width: 1.5;"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                <div id="modal-content">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Sample invoice data
+    const invoiceData = {
+        'INV-2024-001': {
+            number: 'INV-2024-001',
+            client: 'TechCorp Solutions',
+            matter: 'Corporate Restructuring',
+            date: 'November 15, 2024',
+            amount: 45750.00,
+            yourShare: 38475.00,
+            status: 'Paid',
+            statusColor: 'green',
+            splitType: 'standard',
+            splitPercentage: 84,
+            description: 'Legal services for corporate restructuring including due diligence, contract review, and regulatory compliance.',
+            timeEntries: [
+                { date: 'Nov 10', description: 'Due diligence review', hours: 8.5, rate: 850 },
+                { date: 'Nov 12', description: 'Contract drafting and review', hours: 6.0, rate: 850 },
+                { date: 'Nov 14', description: 'Client meetings and consultation', hours: 4.5, rate: 850 },
+                { date: 'Nov 15', description: 'Final documentation review', hours: 3.5, rate: 850 }
+            ],
+            expenses: [
+                { description: 'Document filing fees', amount: 450 },
+                { description: 'Travel expenses', amount: 320 }
+            ]
+        },
+        'INV-2024-002': {
+            number: 'INV-2024-002',
+            client: 'Global Industries',
+            matter: 'M&A Advisory',
+            date: 'November 12, 2024',
+            amount: 28500.00,
+            yourShare: 19950.00,
+            status: 'Scheduled for Pay Run',
+            statusColor: 'blue',
+            splitType: 'standard',
+            splitPercentage: 70,
+            description: 'Merger and acquisition advisory services including target evaluation and transaction structuring.',
+            timeEntries: [
+                { date: 'Nov 8', description: 'Target company analysis', hours: 6.5, rate: 900 },
+                { date: 'Nov 10', description: 'Transaction structure planning', hours: 5.0, rate: 900 },
+                { date: 'Nov 12', description: 'Negotiation support', hours: 4.0, rate: 900 }
+            ],
+            expenses: [
+                { description: 'Financial analysis reports', amount: 1200 }
+            ]
+        },
+        'INV-2024-003': {
+            number: 'INV-2024-003',
+            client: 'StartupCo',
+            matter: 'Legal Consultation',
+            date: 'November 8, 2024',
+            amount: 16750.00,
+            yourShare: 8550.00,
+            status: 'Awaiting Payment',
+            statusColor: 'yellow',
+            splitType: 'special',
+            splitPercentage: 51,
+            specialNote: 'Reduced rate for startup client as per partnership agreement',
+            description: 'Comprehensive legal consultation for startup including incorporation, IP protection, and employment agreements.',
+            timeEntries: [
+                { date: 'Nov 5', description: 'Incorporation documentation', hours: 4.0, rate: 750 },
+                { date: 'Nov 6', description: 'IP strategy consultation', hours: 3.5, rate: 750 },
+                { date: 'Nov 8', description: 'Employment agreement drafting', hours: 5.0, rate: 750 }
+            ],
+            expenses: [
+                { description: 'State filing fees', amount: 325 },
+                { description: 'Legal research subscriptions', amount: 175 }
+            ]
+        },
+        'INV-2024-004': {
+            number: 'INV-2024-004',
+            client: 'Retail Group Inc',
+            matter: 'Employment Law',
+            date: 'November 5, 2024',
+            amount: 22300.00,
+            yourShare: 17395.00,
+            status: 'Pending Approval',
+            statusColor: 'gray',
+            splitType: 'commission',
+            splitPercentage: 78,
+            specialNote: 'Business development bonus applied',
+            description: 'Employment law consultation and policy development for retail operations.',
+            timeEntries: [
+                { date: 'Nov 2', description: 'Policy review and analysis', hours: 5.5, rate: 800 },
+                { date: 'Nov 3', description: 'Employee handbook revision', hours: 6.0, rate: 800 },
+                { date: 'Nov 5', description: 'Management training preparation', hours: 3.0, rate: 800 }
+            ],
+            expenses: [
+                { description: 'Training materials', amount: 280 }
+            ]
+        },
+        'INV-2024-005': {
+            number: 'INV-2024-005',
+            client: 'MedTech Partners',
+            matter: 'Regulatory Compliance',
+            date: 'November 3, 2024',
+            amount: 35200.00,
+            yourShare: 24640.00,
+            status: 'Paid',
+            statusColor: 'green',
+            splitType: 'standard',
+            splitPercentage: 70,
+            description: 'FDA regulatory compliance review and submission preparation for medical device approval.',
+            timeEntries: [
+                { date: 'Oct 28', description: 'Regulatory framework analysis', hours: 7.0, rate: 950 },
+                { date: 'Oct 30', description: 'FDA submission preparation', hours: 8.5, rate: 950 },
+                { date: 'Nov 1', description: 'Compliance documentation', hours: 6.0, rate: 950 },
+                { date: 'Nov 3', description: 'Final review and submission', hours: 4.0, rate: 950 }
+            ],
+            expenses: [
+                { description: 'FDA filing fees', amount: 2850 },
+                { description: 'Expert consultation', amount: 1200 }
+            ]
+        }
+    };
+
+    function openInvoiceModal(invoiceId) {
+        const invoice = invoiceData[invoiceId];
+        if (!invoice) return;
+
+        const modal = document.getElementById('invoice-modal');
+        const content = document.getElementById('modal-content');
+        
+        const totalHours = invoice.timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
+        const totalExpenses = invoice.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        
+        const splitTypeClass = {
+            'standard': 'own-split',
+            'commission': 'commission-split',
+            'special': 'special-split',
+            'reduced': 'other-split'
+        }[invoice.splitType] || 'own-split';
+
+        const splitTypeLabel = {
+            'standard': 'Standard Partner Split',
+            'commission': 'Commission Split',
+            'special': 'Special Arrangement',
+            'reduced': 'Reduced Split'
+        }[invoice.splitType] || 'Standard Split';
+
+        content.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Invoice Header -->
+                    <div class="glass-effect rounded-2xl p-6 border border-white/20">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-2xl font-semibold text-gray-900">${invoice.number}</h3>
+                                <p class="text-gray-500 mt-1">${invoice.date}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-3xl font-semibold text-gray-900">$${invoice.amount.toLocaleString()}</div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${invoice.statusColor}-100 text-${invoice.statusColor}-800 mt-2">
+                                    ${invoice.status}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                            <div>
+                                <p class="text-sm text-gray-500">Client</p>
+                                <p class="font-semibold text-gray-900">${invoice.client}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Matter</p>
+                                <p class="font-semibold text-gray-900">${invoice.matter}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <p class="text-sm text-gray-500 mb-2">Description</p>
+                            <p class="text-gray-700">${invoice.description}</p>
+                        </div>
+                    </div>
+
+                    <!-- Time Entries -->
+                    <div class="glass-effect rounded-2xl p-6 border border-white/20">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Time Entries</h4>
+                        <div class="overflow-hidden rounded-xl border border-gray-200">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Description</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Hours</th>
+                                        <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Rate</th>
+                                        <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${invoice.timeEntries.map(entry => `
+                                        <tr>
+                                            <td class="px-4 py-3 text-sm text-gray-600">${entry.date}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-900">${entry.description}</td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-600">${entry.hours}</td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-600">$${entry.rate}</td>
+                                            <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900">$${(entry.hours * entry.rate).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot class="bg-gray-50">
+                                    <tr>
+                                        <td colspan="2" class="px-4 py-3 text-sm font-semibold text-gray-900">Total Time</td>
+                                        <td class="px-4 py-3 text-sm text-center font-semibold text-gray-900">${totalHours} hrs</td>
+                                        <td colspan="2" class="px-4 py-3 text-sm text-right font-semibold text-gray-900">$${invoice.timeEntries.reduce((sum, entry) => sum + (entry.hours * entry.rate), 0).toLocaleString()}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Expenses -->
+                    ${invoice.expenses.length > 0 ? `
+                    <div class="glass-effect rounded-2xl p-6 border border-white/20">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Expenses</h4>
+                        <div class="space-y-3">
+                            ${invoice.expenses.map(expense => `
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                                    <span class="text-gray-900">${expense.description}</span>
+                                    <span class="font-semibold text-gray-900">$${expense.amount.toLocaleString()}</span>
+                                </div>
+                            `).join('')}
+                            <div class="flex justify-between items-center pt-3 border-t border-gray-200 font-semibold text-gray-900">
+                                <span>Total Expenses</span>
+                                <span>$${totalExpenses.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Fee Split Breakdown -->
+                    <div class="${splitTypeClass} rounded-2xl p-6">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i data-lucide="percent" class="w-5 h-5 text-gray-600" style="stroke-width: 1.5;"></i>
+                            <h4 class="text-lg font-semibold text-gray-900">Fee Split</h4>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Split Type</span>
+                                    <span class="text-sm font-semibold text-gray-900">${splitTypeLabel}</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Your Percentage</span>
+                                    <span class="text-lg font-semibold text-gray-900">${invoice.splitPercentage}%</span>
+                                </div>
+                                ${invoice.specialNote ? `
+                                <div class="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                    <div class="flex items-start space-x-2">
+                                        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mt-0.5" style="stroke-width: 1.5;"></i>
+                                        <p class="text-sm text-amber-800">${invoice.specialNote}</p>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Total Invoice</span>
+                                        <span class="font-semibold text-gray-900">$${invoice.amount.toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Firm Share (${100 - invoice.splitPercentage}%)</span>
+                                        <span class="text-gray-600">$${(invoice.amount * (100 - invoice.splitPercentage) / 100).toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-lg font-semibold text-blue-600 pt-3 border-t border-gray-200">
+                                        <span>Your Share (${invoice.splitPercentage}%)</span>
+                                        <span>$${invoice.yourShare.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="glass-effect rounded-2xl p-6 border border-white/20">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i data-lucide="credit-card" class="w-5 h-5 text-gray-600" style="stroke-width: 1.5;"></i>
+                            <h4 class="text-lg font-semibold text-gray-900">Payment Status</h4>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Status</span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-${invoice.statusColor}-100 text-${invoice.statusColor}-800">
+                                    ${invoice.status}
+                                </span>
+                            </div>
+                            ${invoice.status === 'Paid' ? `
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Paid Date</span>
+                                <span class="text-gray-900">${invoice.date}</span>
+                            </div>
+                            ` : invoice.status === 'Scheduled for Pay Run' ? `
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Scheduled Date</span>
+                                <span class="text-gray-900">December 1, 2024</span>
+                            </div>
+                            ` : ''}
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Payment Method</span>
+                                <span class="text-gray-900">Direct Deposit</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="glass-effect rounded-2xl p-6 border border-white/20">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Actions</h4>
+                        <div class="space-y-3">
+                            <button class="w-full px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                                <i data-lucide="download" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                                <span>Download Invoice</span>
+                            </button>
+                            <button class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center space-x-2">
+                                <i data-lucide="share" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                                <span>Share Invoice</span>
+                            </button>
+                            <button class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center space-x-2">
+                                <i data-lucide="printer" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                                <span>Print Invoice</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function closeInvoiceModal() {
+        const modal = document.getElementById('invoice-modal');
+        modal.classList.add('hidden');
+    }
+
+    function toggleHelpSection() {
+        const helpContent = document.getElementById('help-content');
+        const chevron = document.getElementById('help-chevron');
+        
+        if (helpContent.classList.contains('expanded')) {
+            helpContent.classList.remove('expanded');
+            chevron.style.transform = 'rotate(0deg)';
+        } else {
+            helpContent.classList.add('expanded');
+            chevron.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('invoice-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeInvoiceModal();
+        }
+    });
+
+    // Initialize icons after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+
+    // Escape key to close modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeInvoiceModal();
+        }
+    });
+</script>
+
+</body>
+</html>
