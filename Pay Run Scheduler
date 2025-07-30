@@ -1,0 +1,1663 @@
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Run Scheduler - Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+from { opacity: 0; transform: translateX(-30px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+from { opacity: 0; transform: scale(0.8); }
+to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-fade-in-left { animation: fadeInLeft 0.8s ease-out forwards; }
+.animate-slide-down { animation: slideDown 0.6s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
+.glass-effect {
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+}
+.opacity-0 { opacity: 0; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+/* Status styles */
+.status-ready { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-scheduled { background: rgba(59, 130, 246, 0.1); color: #1e40af; border: 1px solid rgba(59, 130, 246, 0.2); }
+.status-complete { background: rgba(107, 114, 128, 0.1); color: #374151; border: 1px solid rgba(107, 114, 128, 0.2); }
+.status-success { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-processed { background: rgba(168, 85, 247, 0.1); color: #7c3aed; border: 1px solid rgba(168, 85, 247, 0.2); }
+/* Action type styles */
+.type-upload { background: rgba(59, 130, 246, 0.1); color: #1e40af; }
+.type-generation { background: rgba(168, 85, 247, 0.1); color: #7c3aed; }
+.type-payrun { background: rgba(34, 197, 94, 0.1); color: #166534; }
+.type-batch { background: rgba(245, 158, 11, 0.1); color: #92400e; }
+/* Action buttons */
+.schedule-btn {
+background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+color: white;
+transition: all 0.3s ease;
+}
+.schedule-btn:hover {
+background: linear-gradient(135deg, #1d4ed8, #1e40af);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+.schedule-btn:disabled {
+background: #d1d5db;
+color: #9ca3af;
+transform: none;
+box-shadow: none;
+cursor: not-allowed;
+}
+.complete-btn {
+background: linear-gradient(135deg, #059669, #047857);
+color: white;
+transition: all 0.3s ease;
+}
+.complete-btn:hover {
+background: linear-gradient(135deg, #047857, #065f46);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
+/* History row styles */
+.history-row {
+transition: all 0.3s ease;
+border-left: 4px solid transparent;
+}
+.history-row:hover {
+background: rgba(59, 130, 246, 0.05);
+border-left-color: #3b82f6;
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+/* Invoice row styles */
+.invoice-row {
+transition: all 0.3s ease;
+border-left: 4px solid transparent;
+}
+.invoice-row:hover {
+background: rgba(59, 130, 246, 0.05);
+border-left-color: #3b82f6;
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+.invoice-row.selected {
+background: rgba(59, 130, 246, 0.08);
+border-left-color: #3b82f6;
+}
+/* Tab styles */
+.tab-btn {
+transition: all 0.3s ease;
+border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+color: #3b82f6;
+border-bottom-color: #3b82f6;
+background: rgba(59, 130, 246, 0.05);
+}
+/* Modal styles */
+.modal-backdrop {
+background: rgba(0, 0, 0, 0.7);
+backdrop-filter: blur(5px);
+}
+.modal-content {
+background: white;
+box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+/* Pay run card styles */
+.payrun-card {
+transition: all 0.3s ease;
+}
+.payrun-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+</style></head>
+<body class="font-inter h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+
+<!-- Sidebar -->
+<aside class="animate-fade-in-left fixed z-30 inset-y-0 left-0 w-16 md:w-20 glass-effect flex flex-col transition-all duration-500 border-r pt-6 pb-6 shadow-2xl items-center">
+    <div class="flex flex-col space-y-8">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-sm tracking-tight bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg">
+            FIN
+        </div>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="home" class="lucide lucide-home w-5 h-5" style="stroke-width: 1.5;"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calculator" class="lucide lucide-calculator w-5 h-5" style="stroke-width: 1.5;"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-plus" class="lucide lucide-file-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" class="lucide lucide-send w-5 h-5" style="stroke-width: 1.5;"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-indigo-600 bg-white/80 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" class="lucide lucide-calendar-check w-5 h-5" style="stroke-width: 1.5;"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-5 h-5" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        </button>
+        <button onclick="switchTab('history')" class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="history" class="lucide lucide-history w-5 h-5" style="stroke-width: 1.5;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
+        </button>
+    </div>
+    <div class="mt-auto">
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" class="lucide lucide-settings w-5 h-5" style="stroke-width: 1.5;"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-20 min-h-screen ml-16">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Header -->
+        <header class="animate-slide-down delay-100 flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+            <div>
+                <div class="flex items-center space-x-3 mb-2">
+                    <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                        Pay Run Scheduler
+                    </h1>
+                    
+                </div>
+                <p class="text-gray-500 font-medium">
+                    Schedule and manage partner payments
+                </p>
+            </div>
+            <div class="flex items-center space-x-4 mt-6 lg:mt-0">
+                <button onclick="refreshData()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="refresh-cw" class="lucide lucide-refresh-cw w-4 h-4" style="stroke-width: 1.5;"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+                    <span>Refresh</span>
+                </button>
+                <button onclick="exportPayRunData()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                    <span>Export</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="animate-fade-in-up delay-200 mb-8">
+            <div class="glass-effect rounded-2xl p-2 shadow-lg border border-white/20">
+                <div class="flex space-x-2">
+                    <button onclick="switchTab('ready')" class="tab-btn active flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="ready">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" class="lucide lucide-clock w-4 h-4" style="stroke-width: 1.5;"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                            <span>Ready for Pay Run</span>
+                            <span id="readyCount" class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">24</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('scheduled')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="scheduled">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" class="lucide lucide-calendar-check w-4 h-4" style="stroke-width: 1.5;"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
+                            <span>Scheduled Pay Runs</span>
+                            <span id="scheduledCount" class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">3</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('payrun-history')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="payrun-history">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="archive" class="lucide lucide-archive w-4 h-4" style="stroke-width: 1.5;"><rect width="20" height="5" x="2" y="3" rx="1"></rect><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path><path d="M10 12h4"></path></svg>
+                            <span>Pay Run History</span>
+                            <span id="payrunHistoryCount" class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">15</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('finance-history')" class="tab-btn flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300" data-tab="finance-history">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="history" class="lucide lucide-history w-4 h-4" style="stroke-width: 1.5;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
+                            <span>Finance History</span>
+                            <span id="financeHistoryCount" class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">47</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ready for Pay Run Tab -->
+        <div id="readyTab" class="tab-content animate-fade-in-up delay-300">
+            <!-- Summary Cards -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="readyInvoicesCount">24</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Ready Invoices</div>
+                        <div class="text-xs text-gray-500">Approved &amp; Client Paid</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="dollar-sign" class="lucide lucide-dollar-sign w-6 h-6 text-white" style="stroke-width: 1.5;"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalAmount">$2.4M</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Total Amount</div>
+                        <div class="text-xs text-gray-500">Ready for payment</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="partnersCount">8</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Partners</div>
+                        <div class="text-xs text-gray-500">Awaiting payment</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar" class="lucide lucide-calendar w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="selectedCount">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Selected</div>
+                        <div class="text-xs text-gray-500">For scheduling</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Actions -->
+            <div class="mb-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search absolute left-3 top-3 w-4 h-4 text-gray-400" style="stroke-width: 1.5;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                                <input type="text" id="readySearchInput" placeholder="Search invoices..." class="pl-10 pr-4 py-2.5 w-80 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" onkeyup="searchReadyInvoices()">
+                            </div>
+                            <select id="partnerFilterReady" onchange="filterReadyInvoices()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Partners</option>
+                                <option value="Sarah Mitchell">Sarah Mitchell</option>
+                                <option value="James Morrison">James Morrison</option>
+                                <option value="David Anderson">David Anderson</option>
+                                <option value="Lisa Park">Lisa Park</option>
+                                <option value="Robert Johnson">Robert Johnson</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <button onclick="selectAllReady()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-square" class="lucide lucide-check-square w-4 h-4" style="stroke-width: 1.5;"><path d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344"></path><path d="m9 11 3 3L22 4"></path></svg>
+                                <span>Select All</span>
+                            </button>
+                            <button onclick="clearSelection()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="square" class="lucide lucide-square w-4 h-4" style="stroke-width: 1.5;"><rect width="18" height="18" x="3" y="3" rx="2"></rect></svg>
+                                <span>Clear</span>
+                            </button>
+                            <button onclick="schedulePayRun()" id="scheduleBtn" class="schedule-btn px-6 py-3 rounded-2xl flex items-center space-x-2 shadow-lg" disabled="">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-plus" class="lucide lucide-calendar-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M16 19h6"></path><path d="M16 2v4"></path><path d="M19 16v6"></path><path d="M21 12.598V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8.5"></path><path d="M3 10h18"></path><path d="M8 2v4"></path></svg>
+                                <span>Schedule Pay Run</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ready Invoices Table -->
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Ready for Pay Run</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500"><span id="filteredReadyCount">24</span> invoices</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="readyInvoicesTable">
+                        <thead class="bg-gray-50/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-4 text-left w-12">
+                                    <input type="checkbox" id="selectAllReadyCheckbox" onchange="toggleSelectAllReady()" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300">
+                                </th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoice #</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Partner</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Approved Date</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Client Paid Date</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Days Ready</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="readyInvoicesTableBody"><tr class="invoice-row">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" onchange="toggleInvoiceSelection('INV-2024-001')" id="checkbox-INV-2024-001">
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">INV-2024-001</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Sarah Mitchell</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">TechCorp Solutions</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$125,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">15/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">20/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                    5 days
+                </span>
+            </td>
+        </tr><tr class="invoice-row">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" onchange="toggleInvoiceSelection('INV-2024-002')" id="checkbox-INV-2024-002">
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">INV-2024-002</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">James Morrison</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Global Industries</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$87,500</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">14/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">19/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                    6 days
+                </span>
+            </td>
+        </tr><tr class="invoice-row">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" onchange="toggleInvoiceSelection('INV-2024-003')" id="checkbox-INV-2024-003">
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">INV-2024-003</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">David Anderson</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Innovation Labs</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$156,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">16/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">22/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                    3 days
+                </span>
+            </td>
+        </tr><tr class="invoice-row">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" onchange="toggleInvoiceSelection('INV-2024-004')" id="checkbox-INV-2024-004">
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">INV-2024-004</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Lisa Park</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Digital Dynamics</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$94,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">13/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">18/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                    7 days
+                </span>
+            </td>
+        </tr><tr class="invoice-row">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" onchange="toggleInvoiceSelection('INV-2024-005')" id="checkbox-INV-2024-005">
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">INV-2024-005</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Robert Johnson</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Future Systems</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$203,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">17/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">23/01/2024</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                    2 days
+                </span>
+            </td>
+        </tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduled Pay Runs Tab -->
+        <div id="scheduledTab" class="tab-content hidden">
+            <div class="space-y-6" id="scheduledPayRuns"><div class="payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">PR-2024-001</h3>
+                    <p class="text-sm text-gray-500">Created by Sarah Chen</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-scheduled">
+                    Scheduled
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Scheduled Date</div>
+                    <div class="font-semibold text-gray-900">28/01/2024</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">8</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$1,250,000</div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="text-sm text-gray-500 mb-1">Notes</div>
+                <div class="text-sm text-gray-700">Q1 Partner payments batch 1</div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="viewPayRunDetails('PR-2024-001')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+                
+            </div>
+        </div><div class="payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">PR-2024-002</h3>
+                    <p class="text-sm text-gray-500">Created by Michael Johnson</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-scheduled">
+                    Scheduled
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Scheduled Date</div>
+                    <div class="font-semibold text-gray-900">05/02/2024</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">12</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$875,000</div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="text-sm text-gray-500 mb-1">Notes</div>
+                <div class="text-sm text-gray-700">High priority partners</div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="viewPayRunDetails('PR-2024-002')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+                
+            </div>
+        </div><div class="payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">PR-2024-003</h3>
+                    <p class="text-sm text-gray-500">Created by Emma Wilson</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-ready">
+                    Ready
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Scheduled Date</div>
+                    <div class="font-semibold text-gray-900">12/02/2024</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">6</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$425,000</div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="text-sm text-gray-500 mb-1">Notes</div>
+                <div class="text-sm text-gray-700">Monthly recurring payments</div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="viewPayRunDetails('PR-2024-003')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+                
+                    <button onclick="executePayRun('PR-2024-003')" class="complete-btn px-4 py-2 rounded-xl flex items-center space-x-2 shadow-lg">
+                        <i data-lucide="play" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                        <span>Execute</span>
+                    </button>
+                
+            </div>
+        </div></div>
+        </div>
+
+        <!-- Pay Run History Tab -->
+        <div id="payrun-historyTab" class="tab-content hidden">
+            <div class="space-y-6" id="payRunHistory"><div class="payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">PR-2024-100</h3>
+                    <p class="text-sm text-gray-500">Executed by Sarah Chen</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-completed">
+                    Completed
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Execution Date</div>
+                    <div class="font-semibold text-gray-900">15/01/2024</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">15</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$1,875,000</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Processing Time</div>
+                    <div class="font-semibold text-gray-900">2.5 hours</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="downloadPayRunReport('PR-2024-100')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="download" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>Download Report</span>
+                </button>
+                <button onclick="viewPayRunDetails('PR-2024-100')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 flex items-center space-x-2 shadow-lg">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+            </div>
+        </div><div class="payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">PR-2024-099</h3>
+                    <p class="text-sm text-gray-500">Executed by Michael Johnson</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-completed">
+                    Completed
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Execution Date</div>
+                    <div class="font-semibold text-gray-900">08/01/2024</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">22</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$2,340,000</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Processing Time</div>
+                    <div class="font-semibold text-gray-900">3.2 hours</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="downloadPayRunReport('PR-2024-099')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="download" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>Download Report</span>
+                </button>
+                <button onclick="viewPayRunDetails('PR-2024-099')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 flex items-center space-x-2 shadow-lg">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+            </div>
+        </div><div class="payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">PR-2024-098</h3>
+                    <p class="text-sm text-gray-500">Executed by Emma Wilson</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-completed">
+                    Completed
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Execution Date</div>
+                    <div class="font-semibold text-gray-900">01/01/2024</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">18</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$1,965,000</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Processing Time</div>
+                    <div class="font-semibold text-gray-900">2.8 hours</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="downloadPayRunReport('PR-2024-098')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="download" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>Download Report</span>
+                </button>
+                <button onclick="viewPayRunDetails('PR-2024-098')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 flex items-center space-x-2 shadow-lg">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+            </div>
+        </div></div>
+        </div>
+
+        <!-- Finance History Tab -->
+        <div id="finance-historyTab" class="tab-content hidden">
+            <!-- Summary Cards -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload" class="lucide lucide-upload w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalUploads">15</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Total Uploads</div>
+                        <div class="text-xs text-gray-500">File uploads processed</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalGenerations">12</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Invoice Generations</div>
+                        <div class="text-xs text-gray-500">Batch generations</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" class="lucide lucide-calendar-check w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalPayRuns">15</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Pay Runs</div>
+                        <div class="text-xs text-gray-500">Completed payments</div>
+                    </div>
+
+                    <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="activity" class="lucide lucide-activity w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>
+                            </div>
+                            <span class="text-2xl font-semibold text-gray-900" id="totalBatchActions">5</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">Batch Actions</div>
+                        <div class="text-xs text-gray-500">Bulk operations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="mb-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search absolute left-3 top-3 w-4 h-4 text-gray-400" style="stroke-width: 1.5;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                                <input type="text" id="historySearchInput" placeholder="Search history..." class="pl-10 pr-4 py-2.5 w-80 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" onkeyup="searchFinanceHistory()">
+                            </div>
+                            <select id="actionTypeFilter" onchange="filterFinanceHistory()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                                <option value="">All Actions</option>
+                                <option value="upload">Uploads</option>
+                                <option value="generation">Invoice Generation</option>
+                                <option value="payrun">Pay Runs</option>
+                                <option value="batch">Batch Actions</option>
+                            </select>
+                            <select id="operatorFilter" onchange="filterFinanceHistory()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"><option value="">All Operators</option>
+                                <option value="Sarah Chen">Sarah Chen</option>
+                                <option value="Michael Johnson">Michael Johnson</option>
+                                <option value="Emma Wilson">Emma Wilson</option>
+                                <option value="David Park">David Park</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <input type="date" id="dateFromFilter" onchange="filterFinanceHistory()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                            <input type="date" id="dateToFilter" onchange="filterFinanceHistory()" class="px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                            <button onclick="clearFilters()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="filter-x" class="lucide lucide-filter-x w-4 h-4" style="stroke-width: 1.5;"><path d="M12.531 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14v6a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341l.427-.473"></path><path d="m16.5 3.5 5 5"></path><path d="m21.5 3.5-5 5"></path></svg>
+                                <span>Clear</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finance History Table -->
+            <div class="glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Finance Operations History</h3>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500"><span id="filteredHistoryCount">47</span> actions</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="financeHistoryTable">
+                        <thead class="bg-gray-50/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date &amp; Time</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action Type</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Operator</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Records</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="financeHistoryTableBody"><tr class="history-row">
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">25/01/2024</div>
+                <div class="text-sm text-gray-500">14:30:00</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium type-payrun">
+                    Payrun
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Executed Pay Run PR-2024-105</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Sarah Chen</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-gray-900">12</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$1,250,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-success">
+                    Success
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <button onclick="viewActionDetails('2024-01-25 14:30')" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 text-sm">
+                    Details
+                </button>
+            </td>
+        </tr><tr class="history-row">
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">25/01/2024</div>
+                <div class="text-sm text-gray-500">09:15:00</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium type-upload">
+                    Upload
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Client payment file upload - TechCorp batch</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Michael Johnson</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-gray-900">25</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$875,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-processed">
+                    Processed
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <button onclick="viewActionDetails('2024-01-25 09:15')" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 text-sm">
+                    Details
+                </button>
+            </td>
+        </tr><tr class="history-row">
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">24/01/2024</div>
+                <div class="text-sm text-gray-500">16:45:00</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium type-generation">
+                    Generation
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Invoice generation for January partners</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Emma Wilson</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-gray-900">48</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$2,100,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-complete">
+                    Complete
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <button onclick="viewActionDetails('2024-01-24 16:45')" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 text-sm">
+                    Details
+                </button>
+            </td>
+        </tr><tr class="history-row">
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">24/01/2024</div>
+                <div class="text-sm text-gray-500">11:20:00</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium type-batch">
+                    Batch
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Bulk approval of partner invoices</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">David Park</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-gray-900">32</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$1,650,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-success">
+                    Success
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <button onclick="viewActionDetails('2024-01-24 11:20')" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 text-sm">
+                    Details
+                </button>
+            </td>
+        </tr><tr class="history-row">
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">23/01/2024</div>
+                <div class="text-sm text-gray-500">13:10:00</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium type-payrun">
+                    Payrun
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">Scheduled Pay Run PR-2024-104</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">Sarah Chen</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-gray-900">8</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$425,000</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-scheduled">
+                    Scheduled
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <button onclick="viewActionDetails('2024-01-23 13:10')" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 text-sm">
+                    Details
+                </button>
+            </td>
+        </tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Schedule Pay Run Modal -->
+<div id="scheduleModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-content w-full max-w-2xl rounded-3xl shadow-2xl border border-white/20 p-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900">Schedule Pay Run</h2>
+            <button onclick="closeScheduleModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-5 h-5" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Selected Invoices</label>
+                    <div class="text-2xl font-semibold text-gray-900" id="modalSelectedCount">0</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Amount</label>
+                    <div class="text-2xl font-semibold text-green-600" id="modalTotalAmount">$0</div>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Payment Date</label>
+                <input type="date" id="paymentDate" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                <textarea id="payRunNotes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Add any notes for this pay run..."></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeScheduleModal()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors duration-300">
+                    Cancel
+                </button>
+                <button onclick="confirmSchedulePayRun()" class="schedule-btn px-6 py-3 rounded-xl flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-plus" class="lucide lucide-calendar-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M16 19h6"></path><path d="M16 2v4"></path><path d="M19 16v6"></path><path d="M21 12.598V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8.5"></path><path d="M3 10h18"></path><path d="M8 2v4"></path></svg>
+                    <span>Schedule Payment</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pay Run Details Modal -->
+<div id="payRunDetailsModal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-content w-full max-w-4xl rounded-3xl shadow-2xl border border-white/20 p-8 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900" id="payRunDetailsTitle">Pay Run Details</h2>
+            <button onclick="closePayRunDetailsModal()" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-5 h-5" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div id="payRunDetailsContent">
+            <!-- Pay run details will be populated here -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Mock data for different tabs
+const mockReadyInvoices = [
+    { id: 'INV-2024-001', partner: 'Sarah Mitchell', client: 'TechCorp Solutions', amount: 125000, approvedDate: '2024-01-15', clientPaidDate: '2024-01-20', daysReady: 5 },
+    { id: 'INV-2024-002', partner: 'James Morrison', client: 'Global Industries', amount: 87500, approvedDate: '2024-01-14', clientPaidDate: '2024-01-19', daysReady: 6 },
+    { id: 'INV-2024-003', partner: 'David Anderson', client: 'Innovation Labs', amount: 156000, approvedDate: '2024-01-16', clientPaidDate: '2024-01-22', daysReady: 3 },
+    { id: 'INV-2024-004', partner: 'Lisa Park', client: 'Digital Dynamics', amount: 94000, approvedDate: '2024-01-13', clientPaidDate: '2024-01-18', daysReady: 7 },
+    { id: 'INV-2024-005', partner: 'Robert Johnson', client: 'Future Systems', amount: 203000, approvedDate: '2024-01-17', clientPaidDate: '2024-01-23', daysReady: 2 }
+];
+
+const mockScheduledPayRuns = [
+    { id: 'PR-2024-001', scheduledDate: '2024-01-28', invoiceCount: 8, totalAmount: 1250000, status: 'scheduled', createdBy: 'Sarah Chen', notes: 'Q1 Partner payments batch 1' },
+    { id: 'PR-2024-002', scheduledDate: '2024-02-05', invoiceCount: 12, totalAmount: 875000, status: 'scheduled', createdBy: 'Michael Johnson', notes: 'High priority partners' },
+    { id: 'PR-2024-003', scheduledDate: '2024-02-12', invoiceCount: 6, totalAmount: 425000, status: 'ready', createdBy: 'Emma Wilson', notes: 'Monthly recurring payments' }
+];
+
+const mockPayRunHistory = [
+    { id: 'PR-2024-100', executedDate: '2024-01-15', invoiceCount: 15, totalAmount: 1875000, status: 'completed', executedBy: 'Sarah Chen', processingTime: '2.5 hours' },
+    { id: 'PR-2024-099', executedDate: '2024-01-08', invoiceCount: 22, totalAmount: 2340000, status: 'completed', executedBy: 'Michael Johnson', processingTime: '3.2 hours' },
+    { id: 'PR-2024-098', executedDate: '2024-01-01', invoiceCount: 18, totalAmount: 1965000, status: 'completed', executedBy: 'Emma Wilson', processingTime: '2.8 hours' }
+];
+
+const mockFinanceHistory = [
+    { date: '2024-01-25 14:30', type: 'payrun', description: 'Executed Pay Run PR-2024-105', operator: 'Sarah Chen', records: 12, amount: 1250000, status: 'success' },
+    { date: '2024-01-25 09:15', type: 'upload', description: 'Client payment file upload - TechCorp batch', operator: 'Michael Johnson', records: 25, amount: 875000, status: 'processed' },
+    { date: '2024-01-24 16:45', type: 'generation', description: 'Invoice generation for January partners', operator: 'Emma Wilson', records: 48, amount: 2100000, status: 'complete' },
+    { date: '2024-01-24 11:20', type: 'batch', description: 'Bulk approval of partner invoices', operator: 'David Park', records: 32, amount: 1650000, status: 'success' },
+    { date: '2024-01-23 13:10', type: 'payrun', description: 'Scheduled Pay Run PR-2024-104', operator: 'Sarah Chen', records: 8, amount: 425000, status: 'scheduled' }
+];
+
+let selectedInvoices = new Set();
+let currentTab = 'ready';
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+    loadReadyInvoices();
+    loadScheduledPayRuns();
+    loadPayRunHistory();
+    loadFinanceHistory();
+    
+    // Set default date for payment scheduling
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('paymentDate').value = tomorrow.toISOString().split('T')[0];
+});
+
+// Tab switching functionality
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+        content.classList.remove('opacity-0', 'animate-fade-in-up');
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    const selectedTab = document.getElementById(tabName + 'Tab');
+    if (selectedTab) {
+        selectedTab.classList.remove('hidden');
+        setTimeout(() => {
+            selectedTab.classList.add('opacity-0', 'animate-fade-in-up');
+            selectedTab.classList.remove('opacity-0');
+        }, 10);
+    }
+    
+    // Add active class to selected tab
+    const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (selectedButton) {
+        selectedButton.classList.add('active');
+    }
+    
+    currentTab = tabName;
+}
+
+// Load ready invoices
+function loadReadyInvoices() {
+    const tbody = document.getElementById('readyInvoicesTableBody');
+    tbody.innerHTML = '';
+    
+    mockReadyInvoices.forEach((invoice, index) => {
+        const row = document.createElement('tr');
+        row.className = 'invoice-row';
+        row.innerHTML = `
+            <td class="px-4 py-4">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" 
+                       onchange="toggleInvoiceSelection('${invoice.id}')" id="checkbox-${invoice.id}">
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">${invoice.id}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">${invoice.partner}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">${invoice.client}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$${invoice.amount.toLocaleString()}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">${new Date(invoice.approvedDate).toLocaleDateString()}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-600">${new Date(invoice.clientPaidDate).toLocaleDateString()}</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium ${invoice.daysReady > 5 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                    ${invoice.daysReady} days
+                </span>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Load scheduled pay runs
+function loadScheduledPayRuns() {
+    const container = document.getElementById('scheduledPayRuns');
+    container.innerHTML = '';
+    
+    mockScheduledPayRuns.forEach(payRun => {
+        const card = document.createElement('div');
+        card.className = 'payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20';
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">${payRun.id}</h3>
+                    <p class="text-sm text-gray-500">Created by ${payRun.createdBy}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-${payRun.status}">
+                    ${payRun.status.charAt(0).toUpperCase() + payRun.status.slice(1)}
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Scheduled Date</div>
+                    <div class="font-semibold text-gray-900">${new Date(payRun.scheduledDate).toLocaleDateString()}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">${payRun.invoiceCount}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$${payRun.totalAmount.toLocaleString()}</div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="text-sm text-gray-500 mb-1">Notes</div>
+                <div class="text-sm text-gray-700">${payRun.notes}</div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="viewPayRunDetails('${payRun.id}')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+                ${payRun.status === 'ready' ? `
+                    <button onclick="executePayRun('${payRun.id}')" class="complete-btn px-4 py-2 rounded-xl flex items-center space-x-2 shadow-lg">
+                        <i data-lucide="play" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                        <span>Execute</span>
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Load pay run history
+function loadPayRunHistory() {
+    const container = document.getElementById('payRunHistory');
+    container.innerHTML = '';
+    
+    mockPayRunHistory.forEach(payRun => {
+        const card = document.createElement('div');
+        card.className = 'payrun-card glass-effect rounded-2xl p-6 shadow-lg border border-white/20';
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">${payRun.id}</h3>
+                    <p class="text-sm text-gray-500">Executed by ${payRun.executedBy}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-${payRun.status}">
+                    ${payRun.status.charAt(0).toUpperCase() + payRun.status.slice(1)}
+                </span>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4 mb-4">
+                <div>
+                    <div class="text-sm text-gray-500">Execution Date</div>
+                    <div class="font-semibold text-gray-900">${new Date(payRun.executedDate).toLocaleDateString()}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Invoices</div>
+                    <div class="font-semibold text-gray-900">${payRun.invoiceCount}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Total Amount</div>
+                    <div class="font-semibold text-green-600">$${payRun.totalAmount.toLocaleString()}</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Processing Time</div>
+                    <div class="font-semibold text-gray-900">${payRun.processingTime}</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="downloadPayRunReport('${payRun.id}')" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                    <i data-lucide="download" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>Download Report</span>
+                </button>
+                <button onclick="viewPayRunDetails('${payRun.id}')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 flex items-center space-x-2 shadow-lg">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>View Details</span>
+                </button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Load finance history
+function loadFinanceHistory() {
+    const tbody = document.getElementById('financeHistoryTableBody');
+    tbody.innerHTML = '';
+    
+    mockFinanceHistory.forEach(action => {
+        const row = document.createElement('tr');
+        row.className = 'history-row';
+        row.innerHTML = `
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">${new Date(action.date).toLocaleDateString()}</div>
+                <div class="text-sm text-gray-500">${new Date(action.date).toLocaleTimeString()}</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium type-${action.type}">
+                    ${action.type.charAt(0).toUpperCase() + action.type.slice(1)}
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="text-gray-900">${action.description}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">${action.operator}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-gray-900">${action.records}</div>
+            </td>
+            <td class="px-4 py-4">
+                <div class="font-semibold text-green-600">$${action.amount.toLocaleString()}</div>
+            </td>
+            <td class="px-4 py-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium status-${action.status}">
+                    ${action.status.charAt(0).toUpperCase() + action.status.slice(1)}
+                </span>
+            </td>
+            <td class="px-4 py-4">
+                <button onclick="viewActionDetails('${action.date}')" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 text-sm">
+                    Details
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Invoice selection functions
+function toggleInvoiceSelection(invoiceId) {
+    if (selectedInvoices.has(invoiceId)) {
+        selectedInvoices.delete(invoiceId);
+        document.getElementById(`checkbox-${invoiceId}`).checked = false;
+        document.querySelector(`#checkbox-${invoiceId}`).closest('tr').classList.remove('selected');
+    } else {
+        selectedInvoices.add(invoiceId);
+        document.getElementById(`checkbox-${invoiceId}`).checked = true;
+        document.querySelector(`#checkbox-${invoiceId}`).closest('tr').classList.add('selected');
+    }
+    
+    updateSelectionUI();
+}
+
+function selectAllReady() {
+    const checkboxes = document.querySelectorAll('#readyInvoicesTableBody input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        const invoiceId = checkbox.id.replace('checkbox-', '');
+        selectedInvoices.add(invoiceId);
+        checkbox.checked = true;
+        checkbox.closest('tr').classList.add('selected');
+    });
+    
+    document.getElementById('selectAllReadyCheckbox').checked = true;
+    updateSelectionUI();
+}
+
+function clearSelection() {
+    selectedInvoices.clear();
+    const checkboxes = document.querySelectorAll('#readyInvoicesTableBody input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.closest('tr').classList.remove('selected');
+    });
+    
+    document.getElementById('selectAllReadyCheckbox').checked = false;
+    updateSelectionUI();
+}
+
+function toggleSelectAllReady() {
+    const selectAllCheckbox = document.getElementById('selectAllReadyCheckbox');
+    if (selectAllCheckbox.checked) {
+        selectAllReady();
+    } else {
+        clearSelection();
+    }
+}
+
+function updateSelectionUI() {
+    const count = selectedInvoices.size;
+    document.getElementById('selectedCount').textContent = count;
+    
+    const scheduleBtn = document.getElementById('scheduleBtn');
+    if (count > 0) {
+        scheduleBtn.disabled = false;
+        scheduleBtn.classList.remove('opacity-50');
+    } else {
+        scheduleBtn.disabled = true;
+        scheduleBtn.classList.add('opacity-50');
+    }
+    
+    // Calculate total amount for selected invoices
+    let totalAmount = 0;
+    selectedInvoices.forEach(invoiceId => {
+        const invoice = mockReadyInvoices.find(inv => inv.id === invoiceId);
+        if (invoice) {
+            totalAmount += invoice.amount;
+        }
+    });
+    
+    // Update modal values
+    document.getElementById('modalSelectedCount').textContent = count;
+    document.getElementById('modalTotalAmount').textContent = `$${totalAmount.toLocaleString()}`;
+}
+
+// Modal functions
+function schedulePayRun() {
+    if (selectedInvoices.size === 0) return;
+    
+    document.getElementById('scheduleModal').classList.remove('hidden');
+    updateSelectionUI();
+}
+
+function closeScheduleModal() {
+    document.getElementById('scheduleModal').classList.add('hidden');
+}
+
+function confirmSchedulePayRun() {
+    const paymentDate = document.getElementById('paymentDate').value;
+    const notes = document.getElementById('payRunNotes').value;
+    
+    if (!paymentDate) {
+        alert('Please select a payment date');
+        return;
+    }
+    
+    // Simulate scheduling
+    alert(`Pay run scheduled successfully for ${new Date(paymentDate).toLocaleDateString()} with ${selectedInvoices.size} invoices.`);
+    
+    clearSelection();
+    closeScheduleModal();
+    
+    // Refresh scheduled pay runs
+    loadScheduledPayRuns();
+}
+
+function viewPayRunDetails(payRunId) {
+    document.getElementById('payRunDetailsModal').classList.remove('hidden');
+    document.getElementById('payRunDetailsTitle').textContent = `Pay Run Details - ${payRunId}`;
+    
+    // Simulate loading details
+    const content = document.getElementById('payRunDetailsContent');
+    content.innerHTML = `
+        <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div class="glass-effect rounded-xl p-4">
+                    <div class="text-sm text-gray-500 mb-1">Pay Run ID</div>
+                    <div class="font-semibold text-gray-900">${payRunId}</div>
+                </div>
+                <div class="glass-effect rounded-xl p-4">
+                    <div class="text-sm text-gray-500 mb-1">Status</div>
+                    <div class="font-semibold text-green-600">Scheduled</div>
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6">
+                <h4 class="font-semibold text-gray-900 mb-4">Included Invoices</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <div>
+                            <div class="font-medium">INV-2024-001 - Sarah Mitchell</div>
+                            <div class="text-sm text-gray-500">TechCorp Solutions</div>
+                        </div>
+                        <div class="font-semibold text-green-600">$125,000</div>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <div>
+                            <div class="font-medium">INV-2024-002 - James Morrison</div>
+                            <div class="text-sm text-gray-500">Global Industries</div>
+                        </div>
+                        <div class="font-semibold text-green-600">$87,500</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function closePayRunDetailsModal() {
+    document.getElementById('payRunDetailsModal').classList.add('hidden');
+}
+
+// Utility functions
+function refreshData() {
+    loadReadyInvoices();
+    loadScheduledPayRuns();
+    loadPayRunHistory();
+    loadFinanceHistory();
+    alert('Data refreshed successfully');
+}
+
+function exportPayRunData() {
+    alert('Exporting pay run data...');
+}
+
+function executePayRun(payRunId) {
+    if (confirm(`Are you sure you want to execute pay run ${payRunId}?`)) {
+        alert(`Pay run ${payRunId} executed successfully`);
+        loadScheduledPayRuns();
+        loadPayRunHistory();
+    }
+}
+
+function downloadPayRunReport(payRunId) {
+    alert(`Downloading report for ${payRunId}...`);
+}
+
+function viewActionDetails(actionDate) {
+    alert(`Viewing details foraction on ${actionDate}...`);
+}
+
+// Search and filter functions
+function searchReadyInvoices() {
+    const searchTerm = document.getElementById('readySearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#readyInvoicesTableBody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('filteredReadyCount').textContent = visibleCount;
+}
+
+function filterReadyInvoices() {
+    const partnerFilter = document.getElementById('partnerFilterReady').value;
+    const rows = document.querySelectorAll('#readyInvoicesTableBody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const partnerCell = row.children[2].textContent;
+        if (!partnerFilter || partnerCell.includes(partnerFilter)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('filteredReadyCount').textContent = visibleCount;
+}
+
+function searchFinanceHistory() {
+    const searchTerm = document.getElementById('historySearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#financeHistoryTableBody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('filteredHistoryCount').textContent = visibleCount;
+}
+
+function filterFinanceHistory() {
+    const actionTypeFilter = document.getElementById('actionTypeFilter').value;
+    const operatorFilter = document.getElementById('operatorFilter').value;
+    const dateFromFilter = document.getElementById('dateFromFilter').value;
+    const dateToFilter = document.getElementById('dateToFilter').value;
+    const rows = document.querySelectorAll('#financeHistoryTableBody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Action type filter
+        if (actionTypeFilter) {
+            const actionTypeCell = row.children[1].textContent.toLowerCase();
+            if (!actionTypeCell.includes(actionTypeFilter)) {
+                show = false;
+            }
+        }
+        
+        // Operator filter
+        if (operatorFilter && show) {
+            const operatorCell = row.children[3].textContent;
+            if (!operatorCell.includes(operatorFilter)) {
+                show = false;
+            }
+        }
+        
+        // Date filters
+        if ((dateFromFilter || dateToFilter) && show) {
+            const dateCell = row.children[0].children[0].textContent;
+            const rowDate = new Date(dateCell);
+            
+            if (dateFromFilter && rowDate < new Date(dateFromFilter)) {
+                show = false;
+            }
+            if (dateToFilter && rowDate > new Date(dateToFilter)) {
+                show = false;
+            }
+        }
+        
+        if (show) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('filteredHistoryCount').textContent = visibleCount;
+}
+
+function clearFilters() {
+    document.getElementById('historySearchInput').value = '';
+    document.getElementById('actionTypeFilter').value = '';
+    document.getElementById('operatorFilter').value = '';
+    document.getElementById('dateFromFilter').value = '';
+    document.getElementById('dateToFilter').value = '';
+    
+    const rows = document.querySelectorAll('#financeHistoryTableBody tr');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+    
+    document.getElementById('filteredHistoryCount').textContent = mockFinanceHistory.length;
+}
+
+// Animation triggers
+setTimeout(() => {
+    document.querySelector('aside').classList.remove('opacity-0');
+    document.querySelector('header').classList.remove('opacity-0');
+    document.querySelector('.animate-fade-in-up.delay-200').classList.remove('opacity-0');
+    document.querySelector('.animate-fade-in-up.delay-300').classList.remove('opacity-0');
+}, 100);
+</script>
+
+
+</body></html>
