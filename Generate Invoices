@@ -1,0 +1,1049 @@
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generate Invoices - Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+from { opacity: 0; transform: translateX(-30px); }
+to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+from { opacity: 0; transform: scale(0.8); }
+to { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.8; }
+}
+@keyframes bounce {
+0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+40%, 43% { transform: translateY(-10px); }
+70% { transform: translateY(-5px); }
+90% { transform: translateY(-2px); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-fade-in-left { animation: fadeInLeft 0.8s ease-out forwards; }
+.animate-slide-down { animation: slideDown 0.6s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.6s ease-out forwards; }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-bounce { animation: bounce 1s infinite; }
+.glass-effect {
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+}
+.opacity-0 { opacity: 0; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.ready-row {
+background: rgba(34, 197, 94, 0.05);
+border-left: 4px solid #22c55e;
+transition: all 0.3s ease;
+}
+.ready-row.selected {
+background: rgba(59, 130, 246, 0.1);
+border-left-color: #3b82f6;
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+.ready-row:hover {
+background: rgba(34, 197, 94, 0.08);
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+.invoice-preview {
+background: white;
+border: 2px solid #e5e7eb;
+transition: all 0.3s ease;
+}
+.invoice-preview:hover {
+border-color: #3b82f6;
+box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+}
+.status-ready { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
+.status-generated { background: rgba(99, 102, 241, 0.1); color: #3730a3; border: 1px solid rgba(99, 102, 241, 0.2); }
+.status-error { background: rgba(239, 68, 68, 0.1); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.2); }
+.status-processing { background: rgba(245, 158, 11, 0.1); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.2); }
+.generate-btn {
+background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+color: white;
+transition: all 0.3s ease;
+}
+.generate-btn:hover {
+background: linear-gradient(135deg, #1d4ed8, #1e40af);
+transform: translateY(-2px);
+box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+.generate-btn:disabled {
+background: linear-gradient(135deg, #9ca3af, #6b7280);
+transform: none;
+box-shadow: none;
+cursor: not-allowed;
+}
+.select-all-btn {
+background: linear-gradient(135deg, #059669, #047857);
+transition: all 0.3s ease;
+}
+.select-all-btn:hover {
+background: linear-gradient(135deg, #047857, #065f46);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
+.preview-modal {
+background: rgba(0, 0, 0, 0.7);
+backdrop-filter: blur(5px);
+}
+.invoice-template {
+background: white;
+box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+.editable-field {
+border: 2px dashed transparent;
+transition: all 0.2s ease;
+cursor: text;
+}
+.editable-field:hover {
+border-color: #3b82f6;
+background: rgba(59, 130, 246, 0.05);
+}
+.editable-field.editing {
+border-color: #3b82f6;
+background: white;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.progress-bar {
+background: linear-gradient(90deg, #3b82f6, #1d4ed8, #3b82f6);
+background-size: 200% 100%;
+animation: progress-shine 2s linear infinite;
+}
+@keyframes progress-shine {
+0% { background-position: 200% 0; }
+100% { background-position: -200% 0; }
+}
+.download-btn {
+background: linear-gradient(135deg, #059669, #047857);
+transition: all 0.3s ease;
+}
+.download-btn:hover {
+background: linear-gradient(135deg, #047857, #065f46);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
+.bulk-download-btn {
+background: linear-gradient(135deg, #7c3aed, #6d28d9);
+transition: all 0.3s ease;
+}
+.bulk-download-btn:hover {
+background: linear-gradient(135deg, #6d28d9, #5b21b6);
+transform: translateY(-1px);
+box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+}
+</style></head>
+<body class="font-inter h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+
+<!-- Sidebar -->
+<aside class="opacity-0 animate-fade-in-left fixed z-30 inset-y-0 left-0 w-16 md:w-20 glass-effect flex flex-col transition-all duration-500 border-r pt-6 pb-6 shadow-2xl items-center">
+    <div class="flex flex-col space-y-8">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-semibold text-sm tracking-tight bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg">
+            FIN
+        </div>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="home" class="lucide lucide-home w-5 h-5" style="stroke-width: 1.5;"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" class=""></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calculator" class="lucide lucide-calculator w-5 h-5" style="stroke-width: 1.5;"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-indigo-600 bg-white/80 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-plus" class="lucide lucide-file-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-5 h-5" style="stroke-width: 1.5;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        </button>
+    </div>
+    <div class="mt-auto">
+        <button class="p-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-indigo-600 hover:bg-white/50 hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" class="lucide lucide-settings w-5 h-5" style="stroke-width: 1.5;"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="md:ml-20 min-h-screen ml-16">
+    <div class="max-w-[1600px] sm:px-6 lg:px-8 mr-auto ml-auto pt-6 pr-4 pb-6 pl-4">
+        
+        <!-- Header -->
+        <header class="animate-slide-down delay-100 flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+            <div class="">
+                <div class="flex items-center space-x-3 mb-2">
+                    <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                        Generate Invoices
+                    </h1>
+                    
+                </div>
+                <p class="text-gray-500 font-medium">
+                    Create self-billed invoices from validated fee allocation records
+                </p>
+            </div>
+            <div class="flex items-center space-x-4 mt-6 lg:mt-0">
+                <button onclick="selectAllRecords()" class="select-all-btn px-6 py-3 text-white rounded-2xl flex items-center space-x-2 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-square" class="lucide lucide-check-square w-5 h-5" style="stroke-width: 1.5;"><path d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    <span>Select All</span>
+                </button>
+                <button onclick="generateSelectedInvoices()" id="generateBtn" class="generate-btn px-6 py-3 rounded-2xl flex items-center space-x-2 shadow-lg" disabled="">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-plus" class="lucide lucide-file-plus w-5 h-5" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg>
+                    <span>Generate Selected</span>
+                    <span id="selectedCount" class="bg-white/20 px-2 py-1 rounded-full text-xs">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Generation Summary Cards -->
+        <div class="animate-fade-in-up delay-200 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                        </div>
+                        <span class="text-2xl font-semibold text-gray-900" id="readyCount">156</span>
+                    </div>
+                    <div class="text-sm text-gray-600 mb-2">Ready for Generation</div>
+                    <div class="text-xs text-gray-500">Validated records</div>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                        </div>
+                        <span class="text-2xl font-semibold text-indigo-700" id="generatedCount">0</span>
+                    </div>
+                    <div class="text-sm text-indigo-700 mb-2">Generated</div>
+                    <div class="text-xs text-indigo-600">This session</div>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" class="lucide lucide-clock w-6 h-6 text-white" style="stroke-width: 1.5;"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                        </div>
+                        <span class="text-2xl font-semibold text-amber-700" id="processingCount">0</span>
+                    </div>
+                    <div class="text-sm text-amber-700 mb-2">Processing</div>
+                    <div class="text-xs text-amber-600">In queue</div>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6 shadow-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-circle" class="lucide lucide-alert-circle w-6 h-6 text-white" style="stroke-width: 1.5;"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                        </div>
+                        <span class="text-2xl font-semibold text-red-700" id="errorCount">0</span>
+                    </div>
+                    <div class="text-sm text-red-700 mb-2">Errors</div>
+                    <div class="text-xs text-red-600">Failed generation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div class="animate-fade-in-up delay-300 mb-6" id="bulkActionsBar" style="display: none;">
+            <div class="glass-effect rounded-2xl p-4 shadow-lg border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layers" class="lucide lucide-layers w-5 h-5 text-white" style="stroke-width: 1.5;"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Bulk Actions</h3>
+                            <p class="text-sm text-gray-600"><span id="bulkSelectedCount">0</span> records selected</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="previewBulkInvoices()" class="px-4 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300 flex items-center space-x-2 shadow-sm border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <span>Preview All</span>
+                        </button>
+                        <button onclick="clearSelection()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors duration-300 flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-4 h-4" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                            <span>Clear</span>
+                        </button>
+                        <button onclick="downloadBulkPDFs()" id="bulkDownloadBtn" class="bulk-download-btn px-4 py-2 text-white rounded-xl flex items-center space-x-2 shadow-lg" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-4 h-4" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                            <span>Download ZIP</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ready Records Table -->
+        <div class="animate-fade-in-up delay-400 glass-effect rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Ready for Invoice Generation</h3>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search absolute left-3 top-3 w-4 h-4 text-gray-400" style="stroke-width: 1.5;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                        <input type="text" placeholder="Search records..." class="pl-10 pr-4 py-2.5 w-64 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                    </div>
+                    <span class="text-sm text-gray-500">156 ready records</span>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full" id="readyRecordsTable">
+                    <thead class="bg-gray-50/50 sticky top-0">
+                        <tr class="">
+                            <th class="px-4 py-4 text-left w-12">
+                                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                            </th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Partner</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Matter</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fee Amount</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoice Date</th>
+                            <th class="px-4 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="recordsTableBody"><tr class="ready-row" data-record-id="1">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="record-checkbox form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" data-record-id="1" onchange="toggleRecordSelection(1)">
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-ready inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    Ready
+                </span>
+            </td>
+            <td class="px-4 py-4 font-medium text-gray-900">Sarah Mitchell</td>
+            <td class="px-4 py-4">TechCorp Industries</td>
+            <td class="px-4 py-4">Patent Filing - Q4 2024</td>
+            <td class="px-4 py-4 font-semibold">$45,750</td>
+            <td class="px-4 py-4">Nov 20, 2024</td>
+            <td class="px-4 py-4 text-center">
+                <button onclick="previewInvoice(1)" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors duration-300 flex items-center space-x-1 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Preview</span>
+                </button>
+            </td>
+        </tr><tr class="ready-row" data-record-id="2">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="record-checkbox form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" data-record-id="2" onchange="toggleRecordSelection(2)">
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-ready inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    Ready
+                </span>
+            </td>
+            <td class="px-4 py-4 font-medium text-gray-900">James Morrison</td>
+            <td class="px-4 py-4">Global Tech Solutions</td>
+            <td class="px-4 py-4">M&amp;A Transaction - Q4 2024</td>
+            <td class="px-4 py-4 font-semibold">$125,000</td>
+            <td class="px-4 py-4">Nov 20, 2024</td>
+            <td class="px-4 py-4 text-center">
+                <button onclick="previewInvoice(2)" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors duration-300 flex items-center space-x-1 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Preview</span>
+                </button>
+            </td>
+        </tr><tr class="ready-row" data-record-id="3">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="record-checkbox form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" data-record-id="3" onchange="toggleRecordSelection(3)">
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-ready inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    Ready
+                </span>
+            </td>
+            <td class="px-4 py-4 font-medium text-gray-900">David Anderson</td>
+            <td class="px-4 py-4">Innovation Partners LLC</td>
+            <td class="px-4 py-4">IP Licensing Agreement</td>
+            <td class="px-4 py-4 font-semibold">$78,500</td>
+            <td class="px-4 py-4">Nov 20, 2024</td>
+            <td class="px-4 py-4 text-center">
+                <button onclick="previewInvoice(3)" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors duration-300 flex items-center space-x-1 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Preview</span>
+                </button>
+            </td>
+        </tr><tr class="ready-row" data-record-id="4">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="record-checkbox form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" data-record-id="4" onchange="toggleRecordSelection(4)">
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-ready inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    Ready
+                </span>
+            </td>
+            <td class="px-4 py-4 font-medium text-gray-900">Lisa Park</td>
+            <td class="px-4 py-4">StartupTech Inc</td>
+            <td class="px-4 py-4">Corporate Formation</td>
+            <td class="px-4 py-4 font-semibold">$25,000</td>
+            <td class="px-4 py-4">Nov 20, 2024</td>
+            <td class="px-4 py-4 text-center">
+                <button onclick="previewInvoice(4)" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors duration-300 flex items-center space-x-1 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Preview</span>
+                </button>
+            </td>
+        </tr><tr class="ready-row" data-record-id="5">
+            <td class="px-4 py-4">
+                <input type="checkbox" class="record-checkbox form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" data-record-id="5" onchange="toggleRecordSelection(5)">
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-ready inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" class="lucide lucide-check-circle w-3 h-3 mr-1" style="stroke-width: 2;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    Ready
+                </span>
+            </td>
+            <td class="px-4 py-4 font-medium text-gray-900">Robert Johnson</td>
+            <td class="px-4 py-4">Enterprise Solutions Ltd</td>
+            <td class="px-4 py-4">Contract Review - Annual</td>
+            <td class="px-4 py-4 font-semibold">$67,250</td>
+            <td class="px-4 py-4">Nov 20, 2024</td>
+            <td class="px-4 py-4 text-center">
+                <button onclick="previewInvoice(5)" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors duration-300 flex items-center space-x-1 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" class="lucide lucide-eye w-4 h-4" style="stroke-width: 1.5;"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Preview</span>
+                </button>
+            </td>
+        </tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Generation Progress -->
+        <div id="generationProgress" class="animate-fade-in-up delay-500 mt-8 glass-effect rounded-2xl p-6 shadow-lg border border-white/20" style="display: none;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Invoice Generation Progress</h3>
+                <button onclick="cancelGeneration()" class="px-4 py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors duration-300 flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-4 h-4" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    <span>Cancel</span>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progress</span>
+                    <span><span id="progressCurrent">0</span> of <span id="progressTotal">0</span> completed</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="progress-bar h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="text-sm text-gray-600" id="progressStatus">
+                Preparing invoice generation...
+            </div>
+        </div>
+
+        <!-- Generated Invoices -->
+        <div id="generatedInvoices" class="animate-fade-in-up delay-600 mt-8" style="display: none;">
+            <div class="glass-effect rounded-2xl p-6 shadow-lg border border-white/20">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Generated Invoices</h3>
+                    <button onclick="downloadAllPDFs()" class="bulk-download-btn px-6 py-3 text-white rounded-2xl flex items-center space-x-2 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download w-5 h-5" style="stroke-width: 1.5;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+                        <span>Download All as ZIP</span>
+                    </button>
+                </div>
+                <div id="generatedInvoicesList" class="space-y-4">
+                    <!-- Generated invoices will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Invoice Preview Modal -->
+<div id="invoicePreviewModal" class="preview-modal fixed inset-0 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="invoice-template rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-3xl">
+                <h3 class="text-lg font-semibold text-gray-900">Invoice Preview</h3>
+                <div class="flex items-center space-x-3">
+                    <button onclick="editInvoice()" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl hover:bg-amber-200 transition-colors duration-300 flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="edit" class="lucide lucide-edit w-4 h-4" style="stroke-width: 1.5;"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path></svg>
+                        <span>Edit</span>
+                    </button>
+                    <button onclick="generateSingleInvoice()" class="generate-btn px-4 py-2 rounded-xl flex items-center space-x-2 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4" style="stroke-width: 1.5;"><path d="M20 6 9 17l-5-5"></path></svg>
+                        <span>Generate</span>
+                    </button>
+                    <button onclick="closePreviewModal()" class="p-2 rounded-xl hover:bg-gray-100 transition-colors duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" class="lucide lucide-x w-5 h-5 text-gray-500" style="stroke-width: 1.5;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-8" id="invoicePreviewContent">
+                <!-- Invoice preview content will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Sample data for ready records
+const readyRecords = [
+    {
+        id: 1,
+        partner: "Sarah Mitchell",
+        client: "TechCorp Industries",
+        matter: "Patent Filing - Q4 2024",
+        feeAmount: 45750.00,
+        invoiceDate: "2024-11-20",
+        selected: false,
+        status: "ready"
+    },
+    {
+        id: 2,
+        partner: "James Morrison",
+        client: "Global Tech Solutions",
+        matter: "M&A Transaction - Q4 2024",
+        feeAmount: 125000.00,
+        invoiceDate: "2024-11-20",
+        selected: false,
+        status: "ready"
+    },
+    {
+        id: 3,
+        partner: "David Anderson",
+        client: "Innovation Partners LLC",
+        matter: "IP Licensing Agreement",
+        feeAmount: 78500.00,
+        invoiceDate: "2024-11-20",
+        selected: false,
+        status: "ready"
+    },
+    {
+        id: 4,
+        partner: "Lisa Park",
+        client: "StartupTech Inc",
+        matter: "Corporate Formation",
+        feeAmount: 25000.00,
+        invoiceDate: "2024-11-20",
+        selected: false,
+        status: "ready"
+    },
+    {
+        id: 5,
+        partner: "Robert Johnson",
+        client: "Enterprise Solutions Ltd",
+        matter: "Contract Review - Annual",
+        feeAmount: 67250.00,
+        invoiceDate: "2024-11-20",
+        selected: false,
+        status: "ready"
+    }
+];
+
+let generatedInvoices = [];
+let currentPreviewRecord = null;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    populateReadyRecords();
+    updateSelectedCount();
+    
+    // Animate elements
+    setTimeout(() => {
+        document.querySelectorAll('.opacity-0').forEach((el, index) => {
+            setTimeout(() => {
+                el.classList.remove('opacity-0');
+            }, index * 100);
+        });
+    }, 100);
+});
+
+// Populate ready records table
+function populateReadyRecords() {
+    const tbody = document.getElementById('recordsTableBody');
+    tbody.innerHTML = '';
+
+    readyRecords.forEach(record => {
+        const row = document.createElement('tr');
+        row.className = `ready-row ${record.selected ? 'selected' : ''}`;
+        row.dataset.recordId = record.id;
+
+        row.innerHTML = `
+            <td class="px-4 py-4">
+                <input type="checkbox" class="record-checkbox form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300" 
+                       data-record-id="${record.id}" ${record.selected ? 'checked' : ''} onchange="toggleRecordSelection(${record.id})">
+            </td>
+            <td class="px-4 py-4">
+                <span class="status-${record.status} inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <i data-lucide="check-circle" class="w-3 h-3 mr-1" style="stroke-width: 2;"></i>
+                    Ready
+                </span>
+            </td>
+            <td class="px-4 py-4 font-medium text-gray-900">${record.partner}</td>
+            <td class="px-4 py-4">${record.client}</td>
+            <td class="px-4 py-4">${record.matter}</td>
+            <td class="px-4 py-4 font-semibold">$${record.feeAmount.toLocaleString()}</td>
+            <td class="px-4 py-4">${formatDate(record.invoiceDate)}</td>
+            <td class="px-4 py-4 text-center">
+                <button onclick="previewInvoice(${record.id})" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors duration-300 flex items-center space-x-1 mx-auto">
+                    <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                    <span>Preview</span>
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+
+    // Re-initialize Lucide icons
+    lucide.createIcons();
+}
+
+// Toggle record selection
+function toggleRecordSelection(recordId) {
+    const record = readyRecords.find(r => r.id === recordId);
+    if (record) {
+        record.selected = !record.selected;
+        updateSelectedCount();
+        updateRowAppearance(recordId);
+        updateBulkActionsBar();
+    }
+}
+
+// Update row appearance
+function updateRowAppearance(recordId) {
+    const row = document.querySelector(`[data-record-id="${recordId}"]`);
+    const record = readyRecords.find(r => r.id === recordId);
+    
+    if (record.selected) {
+        row.classList.add('selected');
+    } else {
+        row.classList.remove('selected');
+    }
+}
+
+// Update selected count
+function updateSelectedCount() {
+    const selectedCount = readyRecords.filter(r => r.selected).length;
+    document.getElementById('selectedCount').textContent = selectedCount;
+    document.getElementById('bulkSelectedCount').textContent = selectedCount;
+    
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.disabled = selectedCount === 0;
+}
+
+// Toggle select all
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const isChecked = selectAllCheckbox.checked;
+    
+    readyRecords.forEach(record => {
+        record.selected = isChecked;
+        const checkbox = document.querySelector(`[data-record-id="${record.id}"]`);
+        if (checkbox) {
+            checkbox.checked = isChecked;
+        }
+        updateRowAppearance(record.id);
+    });
+    
+    updateSelectedCount();
+    updateBulkActionsBar();
+}
+
+// Select all records
+function selectAllRecords() {
+    readyRecords.forEach(record => {
+        record.selected = true;
+        const checkbox = document.querySelector(`[data-record-id="${record.id}"]`);
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+        updateRowAppearance(record.id);
+    });
+    
+    document.getElementById('selectAllCheckbox').checked = true;
+    updateSelectedCount();
+    updateBulkActionsBar();
+}
+
+// Clear selection
+function clearSelection() {
+    readyRecords.forEach(record => {
+        record.selected = false;
+        const checkbox = document.querySelector(`[data-record-id="${record.id}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
+        updateRowAppearance(record.id);
+    });
+    
+    document.getElementById('selectAllCheckbox').checked = false;
+    updateSelectedCount();
+    updateBulkActionsBar();
+}
+
+// Update bulk actions bar
+function updateBulkActionsBar() {
+    const selectedCount = readyRecords.filter(r => r.selected).length;
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    
+    if (selectedCount > 0) {
+        bulkActionsBar.style.display = 'block';
+    } else {
+        bulkActionsBar.style.display = 'none';
+    }
+}
+
+// Preview invoice
+function previewInvoice(recordId) {
+    currentPreviewRecord = readyRecords.find(r => r.id === recordId);
+    if (!currentPreviewRecord) return;
+    
+    const modal = document.getElementById('invoicePreviewModal');
+    const content = document.getElementById('invoicePreviewContent');
+    
+    content.innerHTML = generateInvoiceHTML(currentPreviewRecord);
+    modal.classList.remove('hidden');
+    
+    // Re-initialize Lucide icons
+    lucide.createIcons();
+}
+
+// Generate invoice HTML
+function generateInvoiceHTML(record) {
+    return `
+        <div class="max-w-3xl mx-auto bg-white">
+            <!-- Invoice Header -->
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">INVOICE</h1>
+                    <div class="text-sm text-gray-600">
+                        <p>Invoice #: INV-${String(record.id).padStart(6, '0')}</p>
+                        <p>Date: ${formatDate(record.invoiceDate)}</p>
+                        <p>Due Date: ${formatDate(addDays(record.invoiceDate, 30))}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xl font-bold text-indigo-600 mb-2">Law Firm LLP</div>
+                    <div class="text-sm text-gray-600">
+                        <p>123 Legal Street</p>
+                        <p>New York, NY 10001</p>
+                        <p>Phone: (555) 123-4567</p>
+                        <p>Email: billing@lawfirm.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bill To -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Bill To:</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="font-semibold text-gray-900 editable-field" contenteditable="true">${record.client}</div>
+                    <div class="text-sm text-gray-600 mt-2 editable-field" contenteditable="true">
+                        123 Client Avenue<br>
+                        Business City, BC 12345<br>
+                        United States
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matter Information -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Matter Information:</h3>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Matter</label>
+                            <div class="editable-field font-medium" contenteditable="true">${record.matter}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Partner</label>
+                            <div class="editable-field font-medium" contenteditable="true">${record.partner}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Table -->
+            <div class="mb-8">
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="border border-gray-300 px-4 py-3 text-left font-semibold">Description</th>
+                            <th class="border border-gray-300 px-4 py-3 text-right font-semibold w-32">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-gray-300 px-4 py-3 editable-field" contenteditable="true">
+                                Legal services rendered for ${record.matter}
+                            </td>
+                            <td class="border border-gray-300 px-4 py-3 text-right font-semibold">
+                                $${record.feeAmount.toLocaleString()}
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-gray-50">
+                        <tr>
+                            <td class="border border-gray-300 px-4 py-3 font-semibold text-right">Total Amount:</td>
+                            <td class="border border-gray-300 px-4 py-3 text-right font-bold text-lg">
+                                $${record.feeAmount.toLocaleString()}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Payment Terms -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Payment Terms:</h3>
+                <div class="bg-yellow-50 p-4 rounded-lg text-sm text-gray-700 editable-field" contenteditable="true">
+                    Payment is due within 30 days of invoice date. Please remit payment to the address shown above or contact our billing department for electronic payment options.
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center text-sm text-gray-500 border-t pt-4">
+                <p>Thank you for your business!</p>
+                <p class="mt-2">For questions about this invoice, please contact billing@lawfirm.com</p>
+            </div>
+        </div>
+    `;
+}
+
+// Close preview modal
+function closePreviewModal() {
+    document.getElementById('invoicePreviewModal').classList.add('hidden');
+    currentPreviewRecord = null;
+}
+
+// Edit invoice
+function editInvoice() {
+    const editableFields = document.querySelectorAll('.editable-field');
+    editableFields.forEach(field => {
+        field.classList.add('editing');
+        field.focus();
+    });
+}
+
+// Generate single invoice
+function generateSingleInvoice() {
+    if (!currentPreviewRecord) return;
+    
+    // Simulate generation process
+    showGenerationProgress([currentPreviewRecord]);
+}
+
+// Generate selected invoices
+function generateSelectedInvoices() {
+    const selectedRecords = readyRecords.filter(r => r.selected);
+    if (selectedRecords.length === 0) return;
+    
+    showGenerationProgress(selectedRecords);
+}
+
+// Show generation progress
+function showGenerationProgress(records) {
+    const progressDiv = document.getElementById('generationProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressCurrent = document.getElementById('progressCurrent');
+    const progressTotal = document.getElementById('progressTotal');
+    const progressStatus = document.getElementById('progressStatus');
+    
+    progressDiv.style.display = 'block';
+    progressTotal.textContent = records.length;
+    progressCurrent.textContent = '0';
+    progressBar.style.width = '0%';
+    
+    // Update processing count
+    document.getElementById('processingCount').textContent = records.length;
+    
+    // Simulate generation process
+    let completed = 0;
+    const interval = setInterval(() => {
+        completed++;
+        const percentage = (completed / records.length) * 100;
+        
+        progressCurrent.textContent = completed;
+        progressBar.style.width = percentage + '%';
+        progressStatus.textContent = `Generating invoice ${completed} of ${records.length}...`;
+        
+        if (completed >= records.length) {
+            clearInterval(interval);
+            progressStatus.textContent = 'Generation completed successfully!';
+            
+            // Update counts
+            document.getElementById('generatedCount').textContent = 
+                parseInt(document.getElementById('generatedCount').textContent) + records.length;
+            document.getElementById('processingCount').textContent = '0';
+            
+            // Add to generated invoices
+            records.forEach(record => {
+                generatedInvoices.push({
+                    ...record,
+                    invoiceNumber: `INV-${String(record.id).padStart(6, '0')}`,
+                    generatedAt: new Date().toISOString()
+                });
+            });
+            
+            // Remove from ready records
+            records.forEach(record => {
+                const index = readyRecords.findIndex(r => r.id === record.id);
+                if (index > -1) {
+                    readyRecords.splice(index, 1);
+                }
+            });
+            
+            // Update UI
+            populateReadyRecords();
+            showGeneratedInvoices();
+            clearSelection();
+            closePreviewModal();
+            
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+            }, 3000);
+        }
+    }, 1000);
+}
+
+// Show generated invoices
+function showGeneratedInvoices() {
+    const generatedDiv = document.getElementById('generatedInvoices');
+    const invoicesList = document.getElementById('generatedInvoicesList');
+    
+    if (generatedInvoices.length === 0) {
+        generatedDiv.style.display = 'none';
+        return;
+    }
+    
+    generatedDiv.style.display = 'block';
+    
+    invoicesList.innerHTML = generatedInvoices.map(invoice => `
+        <div class="invoice-preview p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-300 transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="font-semibold text-gray-900">${invoice.invoiceNumber}</span>
+                        <span class="status-generated inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                            <i data-lucide="check" class="w-3 h-3 mr-1" style="stroke-width: 2;"></i>
+                            Generated
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div><strong>Client:</strong> ${invoice.client}</div>
+                        <div><strong>Partner:</strong> ${invoice.partner}</div>
+                        <div><strong>Amount:</strong> $${invoice.feeAmount.toLocaleString()}</div>
+                        <div><strong>Generated:</strong> ${formatDateTime(invoice.generatedAt)}</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 ml-4">
+                    <button onclick="previewGeneratedInvoice('${invoice.invoiceNumber}')" class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center space-x-1">
+                        <i data-lucide="eye" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                        <span>View</span>
+                    </button>
+                    <button onclick="downloadInvoicePDF('${invoice.invoiceNumber}')" class="download-btn px-3 py-2 text-white rounded-lg flex items-center space-x-1">
+                        <i data-lucide="download" class="w-4 h-4" style="stroke-width: 1.5;"></i>
+                        <span>PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    // Re-initialize Lucide icons
+    lucide.createIcons();
+}
+
+// Download invoice PDF
+function downloadInvoicePDF(invoiceNumber) {
+    // Simulate PDF download
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = `${invoiceNumber}.pdf`;
+    link.click();
+    
+    // Show success notification
+    showNotification('PDF downloaded successfully!', 'success');
+}
+
+// Download all PDFs
+function downloadAllPDFs() {
+    // Simulate ZIP download
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = `invoices_${formatDate(new Date())}.zip`;
+    link.click();
+    
+    showNotification('All invoices downloaded as ZIP!', 'success');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white animate-slide-down ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Helper functions
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatDateTime(dateString) {
+    return new Date(dateString).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function addDays(dateString, days) {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + days);
+    return date.toISOString().split('T')[0];
+}
+
+// Cancel generation
+function cancelGeneration() {
+    document.getElementById('generationProgress').style.display = 'none';
+    document.getElementById('processingCount').textContent = '0';
+    showNotification('Invoice generation cancelled', 'info');
+}
+</script>
+
+
+</body></html>
